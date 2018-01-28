@@ -47,7 +47,7 @@ Installation Under Windows
        http://sourceforge.net/projects/pyusb
 
    It will come in a zip archive.  Unzip the archive somewhere convenient.  
-   Toi install pyusb, launch a command shell and navigate to the pyusb directory 
+   To install pyusb, launch a command shell and navigate to the pyusb directory 
    using the cd command.  From that directory, you should be able to install 
    pyusb by running "python setup.py install" at the command prompt.
 
