@@ -1,10 +1,8 @@
 
 #include "elecanisms.h"
+#include <stdio.h>
+#include <time.h>
 
-void __attribute__((interrupt, auto_psv)) _T1Interrupt(void) {
-    IFS0bits.T1IF = 0;      // lower Timer1 interrupt flag
-    LED2 = !LED2;           // toggle LED2
-}
 
 int16_t main(void) {
     init_elecanisms();
@@ -14,16 +12,48 @@ int16_t main(void) {
 
     TMR1 = 0;               // set Timer1 count to 0
     IFS0bits.T1IF = 0;      // lower Timer1 interrupt flag
-    IEC0bits.T1IE = 1;      // enable Timer1 interrupt
     T1CONbits.TON = 1;      // turn on Timer1
 
-    LED2 = ON;
+    time_t start_t, end_t;
+    double diff_t;
 
-    while (1) {
-        LED1 = (SW2 == 0) ? ON : OFF;   // turn LED1 on if SW2 is pressed
-        LED3 = (SW3 == 0) ? ON : OFF;   // turn LED3 on if SW3 is pressed
-    }
+    time(&start_t);
+    time(&end_t);
+    diff_t = difftime(end_t, start_t);
+
+while (diff_t < 3){
+    LED3 = ON;
+    time(&end_t);
+    diff_t = difftime(end_t, start_t);
 }
+
+while (diff_t >= 3 && diff_t >= 6){
+    LED3 = OFF;
+    time(&end_t);
+    diff_t = difftime(end_t, start_t);
+}
+
+while (diff_t > 6){
+    time(&end_t);
+    time(&end_t);
+    diff_t = difftime(end_t, start_t);
+}
+
+
+/*
+    while (1) {
+        if (IFS0bits.T1IF == 1) {
+            IFS0bits.T1IF = 0;      // lower Timer1 interrupt flag
+            LED2 = !LED2;           // toggle LED2
+            //LED2 = ON;
+          }
+        //LED1 = (D0 == 0) ? OFF : ON;   // turn LED1 on if SW2 is pressed
+        //LED3 = (SW3 == 0) ? ON : OFF;   // turn LED3 on if SW3 is pressed
+    }
+    */
+}
+
+
 
 
 
