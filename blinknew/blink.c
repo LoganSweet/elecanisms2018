@@ -18,7 +18,7 @@ int16_t main(void) {
         if (IFS0bits.T2IF == 1) {
             IFS0bits.T2IF = 0;      // lower Timer1 interrupt flag
             LED2 = ON;           // toggle LED2
-            //LED3 = !LED3;
+            LED3 = !LED3;
         }
 
     }
@@ -29,7 +29,7 @@ int16_t main(void) {
 
 
 
-/*
+
 #include <time.h>
 #include "elecanisms.h"
 //#include <stdlib.h>
@@ -43,11 +43,11 @@ int main(void)
   time_t now;
 
   now = time(NULL);
+  then = time(NULL);
   double diff = difftime(now, then);
   LED1 = OFF;
   LED2 = OFF;
   LED3 = OFF;
-
 
 while (1) {
   now = time(NULL);
@@ -61,10 +61,10 @@ while (1) {
 }
 
 }
-*
 
 
-/*
+
+
 #include <p24FJ128GB206.h>
 #include "config.h"
 #include "common.h"
@@ -103,4 +103,3 @@ int16_t main(void) {
             }
         }
     }
-    */
