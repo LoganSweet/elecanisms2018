@@ -3119,13 +3119,13 @@ void usb_receive_data_packet(void) {
     1db2:	a2 00 37    	bra       0x1ef8 <.L2>
 
 00001db4 <.L13>:
+    1db4:	40 80 20    	mov.w     #0x804, w0
+    1db6:	60 41 90    	mov.b     [w0+6], w2
                 USB_out_callbacks[0] = usb_receive_data_packet;
             }
             break;
         case MPU_READ_REGS:
             mpu_readRegs(USB_setup.wValue.b[0], BD[EP0IN].address, USB_setup.wLength.b[0]);
-    1db4:	40 80 20    	mov.w     #0x804, w0
-    1db6:	60 41 90    	mov.b     [w0+6], w2
     1db8:	31 50 80    	mov.w     0xa06, w1
     1dba:	40 80 20    	mov.w     #0x804, w0
     1dbc:	20 40 90    	mov.b     [w0+2], w0
