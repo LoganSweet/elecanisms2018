@@ -3117,13 +3117,12 @@ void usb_receive_data_packet(void) {
     1da6:	71 05 20    	mov.w     #0x57, w1
     1da8:	23 74 20    	mov.w     #0x742, w3
     1daa:	80 49 78    	mov.b     w0, [w3]
-
+    1dac:	81 49 78    	mov.b     w1, [w3]
+    1dae:	82 49 78    	mov.b     w2, [w3]
     RPOR = (uint8_t *)&RPOR0;
     RPINR = (uint8_t *)&RPINR0;
 
     __builtin_write_OSCCONL(OSCCON & 0xBF);
-    1dac:	81 49 78    	mov.b     w1, [w3]
-    1dae:	82 49 78    	mov.b     w2, [w3]
     RPOR[D13_RP] = OC1_RP;  // connect the OC1 module output to pin D13
     1db0:	9e 00 78    	mov.w     [w14], w1
     1db2:	76 80 40    	add.w     w1, #0x16, w0
