@@ -43,6 +43,6 @@ env.List('encodertest')
 #env.Append(BUILDERS = {'Load' : load})
 
 
-env.Hex('encodertest')
-env.List('encodertest')
+#env.Hex('encodertest')
+#env.List('encodertest')
 #env.Load('blink')

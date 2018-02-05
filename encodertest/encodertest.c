@@ -33,7 +33,6 @@ WORD enc_readReg(WORD address) {
     __builtin_nop();
     __builtin_nop();
 
-
     D3 = 0;
     SPI1BUF = 0;
     while (SPI1STATbits.SPIRBF ==0) {}
@@ -93,8 +92,6 @@ void vendor_requests(void) {
     }
 }
 
-
-
 int16_t main(void) {
   uint8_t *RPOR, *RPINR;
 
@@ -105,7 +102,7 @@ int16_t main(void) {
   D2_DIR = OUT; //SCK
   D3_DIR = OUT; //NCS
 
-  //ENC_NCS = 1; //Raise the chip select line (it's active low). 
+  //ENC_NCS = 1; //Raise the chip select line (it's active low).
   D3 = 1;
 
   RPOR = (uint8_t *)&RPOR0;
@@ -135,4 +132,3 @@ int16_t main(void) {
 #endif
   }
 }
-

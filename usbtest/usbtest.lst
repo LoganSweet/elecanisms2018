@@ -3139,10 +3139,10 @@ void usb_receive_data_packet(void) {
     1dc6:	81 49 78    	mov.b     w1, [w3]
     1dc8:	82 49 78    	mov.b     w2, [w3]
 
-    OC1CON1 = 0x1C06;   // configure OC1 module to use the peripheral 
+    OC1CON1 = 0x1C06;   // configure OC1 module to use the peripheral
     1dca:	60 c0 21    	mov.w     #0x1c06, w0
     1dcc:	80 0c 88    	mov.w     w0, 0x190
-                        //   clock (i.e., FCY, OCTSEL<2:0> = 0b111) and 
+                        //   clock (i.e., FCY, OCTSEL<2:0> = 0b111) and
                         //   and to operate in edge-aligned PWM mode
                         //   (OCM<2:0> = 0b110)
     OC1CON2 = 0x001F;   // configure OC1 module to syncrhonize to itself
@@ -3150,7 +3150,7 @@ void usb_receive_data_packet(void) {
     1dd0:	90 0c 88    	mov.w     w0, 0x192
                         //   (i.e., OCTRIG = 0 and SYNCSEL<4:0> = 0b11111)
 
-    OC1RS = (uint16_t)(FCY / 1e3 - 1.);     // configure period register to 
+    OC1RS = (uint16_t)(FCY / 1e3 - 1.);     // configure period register to
     1dd2:	f0 e7 23    	mov.w     #0x3e7f, w0
     1dd4:	a0 0c 88    	mov.w     w0, 0x194
                                             //   get a frequency of 1kHz

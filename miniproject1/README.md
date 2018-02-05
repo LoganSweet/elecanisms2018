@@ -26,4 +26,7 @@ The goal of this project is to create a haptic joystick with one degree of freed
 
 ### References ###
 
+https://en.wikipedia.org/wiki/C_syntax
+
+
 Example code and guidance for the miniproject was provided by instructors, the ninja, and some advice from other students in the course.
