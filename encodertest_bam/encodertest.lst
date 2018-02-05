@@ -3114,89 +3114,55 @@ void usb_receive_data_packet(void) {
     1daa:	01 48 78    	mov.b     w1, [w0]
     1dac:	40 a0 20    	mov.w     #0xa04, w0
     1dae:	11 c0 b3    	mov.b     #0x1, w1
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case READ_SW3:
-            BD[EP0IN].address[0] = SW3 ? 1 : 0;
-            BD[EP0IN].bytecount = 1;
     1db0:	01 48 78    	mov.b     w1, [w0]
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
     1db2:	50 a0 20    	mov.w     #0xa05, w0
     1db4:	81 cc b3    	mov.b     #0xc8, w1
     1db6:	01 48 78    	mov.b     w1, [w0]
-            break;
     1db8:	15 00 37    	bra       0x1de4 <.L7>
 
 00001dba <.L15>:
-        case ENC_READ_REG:
-            temp = enc_readReg(USB_setup.wValue);
     1dba:	40 80 20    	mov.w     #0x804, w0
     1dbc:	90 00 90    	mov.w     [w0+2], w1
     1dbe:	0e 00 78    	mov.w     w14, w0
     1dc0:	33 ff 07    	rcall     0x1c28 <_enc_readReg> <.LFB1> <.LFE0>
-            BD[EP0IN].address[0] = temp.b[0];
     1dc2:	30 50 80    	mov.w     0xa06, w0
     1dc4:	9e 40 78    	mov.b     [w14], w1
     1dc6:	01 48 78    	mov.b     w1, [w0]
-            BD[EP0IN].address[1] = temp.b[1];
     1dc8:	30 50 80    	mov.w     0xa06, w0
     1dca:	00 00 e8    	inc.w     w0, w0
     1dcc:	9e 40 90    	mov.b     [w14+1], w1
     1dce:	01 48 78    	mov.b     w1, [w0]
-            BD[EP0IN].bytecount = 2;
     1dd0:	40 a0 20    	mov.w     #0xa04, w0
     1dd2:	21 c0 b3    	mov.b     #0x2, w1
     1dd4:	01 48 78    	mov.b     w1, [w0]
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
     1dd6:	50 a0 20    	mov.w     #0xa05, w0
     1dd8:	81 cc b3    	mov.b     #0xc8, w1
     1dda:	01 48 78    	mov.b     w1, [w0]
-            break;
     1ddc:	03 00 37    	bra       0x1de4 <.L7>
 
 00001dde <.L8>:
-        default:
-            USB_error_flags |= REQUEST_ERROR;
     1dde:	0c c8 bf    	mov.b     0x80c, WREG
     1de0:	00 04 a0    	bset.b    w0, #0x0
     1de2:	0c e8 b7    	mov.b     WREG, 0x80c
 
 00001de4 <.L7>:
-    }
-}
     1de4:	00 80 fa    	ulnk      
     1de6:	00 00 06    	return    
 
 00001de8 <_main>:
-
-int16_t main(void) {
     1de8:	04 00 fa    	lnk       #0x4
-    uint8_t *RPOR, *RPINR;
-
-    init_elecanisms();
     1dea:	36 00 07    	rcall     0x1e58 <_init_elecanisms> <.L0> <.LFB0> <.LFE3> <.Letext0> <.Ltext0>
-
-    // Configure encoder pins and connect them to SPI2
-    ENC_CSn_DIR = OUT; ENC_CSn = 1;
     1dec:	e8 a2 a9    	bclr.b    0x2e8, #0x5
     1dee:	ea a2 a8    	bset.b    0x2ea, #0x5
-    ENC_SCK_DIR = OUT; ENC_SCK = 0;
     1df0:	e8 82 a9    	bclr.b    0x2e8, #0x4
     1df2:	ea 82 a9    	bclr.b    0x2ea, #0x4
-    ENC_MOSI_DIR = OUT; ENC_MOSI = 0;
     1df4:	d8 a2 a9    	bclr.b    0x2d8, #0x5
     1df6:	da a2 a9    	bclr.b    0x2da, #0x5
-    ENC_MISO_DIR = IN;
     1df8:	d8 82 a8    	bset.b    0x2d8, #0x4
-
-    RPOR = (uint8_t *)&RPOR0;
     1dfa:	00 6c 20    	mov.w     #0x6c0, w0
     1dfc:	00 0f 78    	mov.w     w0, [w14]
-    RPINR = (uint8_t *)&RPINR0;
     1dfe:	00 68 20    	mov.w     #0x680, w0
     1e00:	10 07 98    	mov.w     w0, [w14+2]
-
-    __builtin_write_OSCCONL(OSCCON & 0xBF);
     1e02:	11 3a 80    	mov.w     0x742, w1
     1e04:	f0 0b 20    	mov.w     #0xbf, w0
     1e06:	00 81 60    	and.w     w1, w0, w2
@@ -3206,22 +3172,18 @@ int16_t main(void) {
     1e0e:	80 49 78    	mov.b     w0, [w3]
     1e10:	81 49 78    	mov.b     w1, [w3]
     1e12:	82 49 78    	mov.b     w2, [w3]
-    RPINR[MISO2_RP] = ENC_MISO_RP;
     1e14:	1e 00 90    	mov.w     [w14+2], w0
     1e16:	c0 02 b0    	add.w     #0x2c, w0
     1e18:	91 c1 b3    	mov.b     #0x19, w1
     1e1a:	01 48 78    	mov.b     w1, [w0]
-    RPOR[ENC_MOSI_RP] = MOSI2_RP;
     1e1c:	9e 00 78    	mov.w     [w14], w1
     1e1e:	74 80 40    	add.w     w1, #0x14, w0
     1e20:	a1 c0 b3    	mov.b     #0xa, w1
     1e22:	01 48 78    	mov.b     w1, [w0]
-    RPOR[ENC_SCK_RP] = SCK2OUT_RP;
     1e24:	9e 00 78    	mov.w     [w14], w1
     1e26:	6a 80 40    	add.w     w1, #0xa, w0
     1e28:	b1 c0 b3    	mov.b     #0xb, w1
     1e2a:	01 48 78    	mov.b     w1, [w0]
-    __builtin_write_OSCCONL(OSCCON | 0x40);
     1e2c:	10 3a 80    	mov.w     0x742, w0
     1e2e:	00 01 78    	mov.w     w0, w2
     1e30:	02 60 a0    	bset.w    w2, #0x6
@@ -3231,23 +3193,14 @@ int16_t main(void) {
     1e38:	80 49 78    	mov.b     w0, [w3]
     1e3a:	81 49 78    	mov.b     w1, [w3]
     1e3c:	82 49 78    	mov.b     w2, [w3]
-
-    SPI2CON1 = 0x003B;              // SPI2 mode = 1, SCK freq = 8 MHz
     1e3e:	b0 03 20    	mov.w     #0x3b, w0
     1e40:	10 13 88    	mov.w     w0, 0x262
-    SPI2CON2 = 0;
     1e42:	64 22 ef    	clr.w     0x264
-    SPI2STAT = 0x8000;
     1e44:	00 00 28    	mov.w     #0x8000, w0
     1e46:	00 13 88    	mov.w     w0, 0x260
-
-    USB_setup_vendor_callback = vendor_requests;
     1e48:	e0 ca 21    	mov.w     #0x1cae, w0
     1e4a:	c0 40 88    	mov.w     w0, 0x818
-    init_usb();
     1e4c:	4f fa 07    	rcall     0x12ec <_init_usb> <.LFB3> <.LFE2>
-
-    while (USB_USWSTAT != CONFIG_STATE) {
     1e4e:	00 00 00    	nop       
 
 00001e50 <.L19>:
@@ -3256,15 +3209,6 @@ int16_t main(void) {
     1e54:	fd ff 3a    	bra       NZ, 0x1e50 <.L19>
 
 00001e56 <.L20>:
-#ifndef USB_INTERRUPT
-        usb_service();
-#endif
-    }
-    while (1) {
-#ifndef USB_INTERRUPT
-        usb_service();
-#endif
-    }
     1e56:	ff ff 37    	bra       .
 
 00001e58 <_init_elecanisms>:

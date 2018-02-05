@@ -49,14 +49,23 @@ class encodertestgui:
             self.sw3_status.pack(side = tk.TOP)
             self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
             self.enc_status.pack(side = tk.TOP)
+
+            self.enc2_status = tk.Label(self.root, text = 'ret[0] ?????')
+            self.enc2_status.pack(side = tk.TOP)
+            self.enc3_status = tk.Label(self.root, text = 'ret[1] is ?????')
+            self.enc3_status.pack(side = tk.TOP)
+
             self.update_status()
 
     def update_status(self):
         self.sw1_status.configure(text = 'SW1 is currently {!s}'.format(self.dev.read_sw1()))
         self.sw2_status.configure(text = 'SW2 is currently {!s}'.format(self.dev.read_sw2()))
         self.sw3_status.configure(text = 'SW3 is currently {!s}'.format(self.dev.read_sw3()))
-        self.enc_status.configure(text = 'Angle is {:05d}'.format(self.dev.get_angle()))
-        #self.enc_status.configure(text = 'Angle is {!s}'.format(self.dev.get_angle()))
+        self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle()))
+
+        self.enc2_status.configure(text = 'ret0 {:1}'.format(self.dev.get_angle2()))
+        self.enc3_status.configure(text = 'ret1 {:1}'.format(self.dev.get_angle3()))
+
         self.update_job = self.root.after(50, self.update_status)
 
     def shut_down(self):
