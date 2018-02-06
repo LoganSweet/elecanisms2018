@@ -107,16 +107,11 @@ void vendor_requests(void) {
 
 int16_t main(void) {
     uint8_t *RPOR, *RPINR;
-
     init_elecanisms();
 
-    // Configure pin D13 to produce a 1-kHz PWM signal with a 25% duty cycle
-    // using the OC1 module.
-    // output compare documentation at:
-    // http://elecanisms.olin.edu/frm/35_Output_Compare.pdf
+    // Configure pin D13 to produce a 1-kHz PWM signal with a 25% duty cycle using the OC1 module. doc at http://elecanisms.olin.edu/frm/35_Output_Compare.pdf
     D13_DIR = OUT;      // configure D13 to be a digital output
     D13 = 0;            // set D13 low
-
     RPOR = (uint8_t *)&RPOR0;
     RPINR = (uint8_t *)&RPINR0;
 
@@ -124,15 +119,11 @@ int16_t main(void) {
     RPOR[D13_RP] = OC1_RP;  // connect the OC1 module output to pin D13
     __builtin_write_OSCCONL(OSCCON | 0x40);
 
-    OC1CON1 = 0x1C06;   // configure OC1 module to use the peripheral
-                        //   clock (i.e., FCY, OCTSEL<2:0> = 0b111) and
-                        //   and to operate in edge-aligned PWM mode
-                        //   (OCM<2:0> = 0b110)
-    OC1CON2 = 0x001F;   // configure OC1 module to syncrhonize to itself
-                        //   (i.e., OCTRIG = 0 and SYNCSEL<4:0> = 0b11111)
+    OC1CON1 = 0x1C06;   // configure OC1 module to use the peripheral clock (i.e., FCY, OCTSEL<2:0> = 0b111) and
+                        //   and to operate in edge-aligned PWM mode OCM<2:0> = 0b110)
+    OC1CON2 = 0x001F;   // configure OC1 module to syncrhonize to itself (i.e., OCTRIG = 0 and SYNCSEL<4:0> = 0b11111)
 
-    OC1RS = (uint16_t)(FCY / 1e3 - 1.);     // configure period register to
-                                            //   get a frequency of 1kHz
+    OC1RS = (uint16_t)(FCY / 1e3 - 1.);     // configure period register to get a frequency of 1kHz
     OC1R = OC1RS >> 2;  // configure duty cycle to 25% (i.e., period / 4)
     OC1TMR = 0;         // set OC1 timer count to 0
 
