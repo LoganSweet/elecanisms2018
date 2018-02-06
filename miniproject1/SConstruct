@@ -15,27 +15,10 @@ list = Builder(action = 'xc16-objdump -S -D $SOURCE > $TARGET',
                src_suffix = 'elf')
 env.Append(BUILDERS = {'List' : list})
 
-env.Program('test1_fromusb', ['test1_fromusb.c',
-                'descriptors.c',
-                '../lib/usb.c',
-                '../lib/elecanisms.c'])
-env.Hex('test1_fromusb')
-env.List('test1_fromusb')
+env.Program('miniproject1', ['miniproject1.c',
+                        'descriptors.c',
+                        '../lib/usb.c',
+                        '../lib/elecanisms.c'])
 
-
-
-#print('Creating builder to load hex file via bootloader...')
-#
-#def load_function(target, source, env):
-#    bl = b.bootloadercmd()
-#    bl.import_hex(source[0].rstr())
-#    bl.write_device()
-#    bl.bootloader.start_user()
-#    bl.bootloader.close()
-#    return None
-#
-#load = Builder(action=load_function,
-#               suffix = 'none',
-#               src_suffix = 'hex')
-#
-#env.Append(BUILDERS = {'Load' : load})
+env.Hex('miniproject1')
+env.List('miniproject1')
