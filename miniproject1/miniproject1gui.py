@@ -34,7 +34,7 @@ class miniproject1gui:
         if self.dev.dev >= 0:
             self.update_job = None
             self.root = tk.Tk()
-            self.root.title('USB Test GUI')
+            self.root.title('Miniproject1 GUI')
             self.root.protocol('WM_DELETE_WINDOW', self.shut_down)
             fm = tk.Frame(self.root)
             fm.pack(side = tk.TOP)
@@ -45,7 +45,6 @@ class miniproject1gui:
 
             self.a0_status = tk.Label(self.root, text = 'A0 is currently ????')
             self.a0_status.pack(side = tk.TOP)
-
             self.a1_status = tk.Label(self.root, text = 'A1 is currently ????')
             self.a1_status.pack(side = tk.TOP)
 
@@ -53,6 +52,9 @@ class miniproject1gui:
             self.t0_status.pack(side = tk.TOP)
             self.t1_status = tk.Label(self.root, text = 'T1 is ????')
             self.t1_status.pack(side = tk.TOP)
+
+            self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
+            self.enc_status.pack(side = tk.TOP)
 
             self.update_status()
 
@@ -64,6 +66,9 @@ class miniproject1gui:
         self.a1_status.configure(text = 'A1 is currently {:}'.format(self.dev.read_a1() ))
         self.t0_status.configure(text = 'T0 is currently {:}'.format(self.dev.read_a0() - 500 ))
         self.t1_status.configure(text = 'T1 is currently {:}'.format(self.dev.read_a1() - 500 ))
+
+        self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle()))
+
         self.update_job = self.root.after(50, self.update_status)
 
     def shut_down(self):
