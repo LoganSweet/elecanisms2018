@@ -37,31 +37,26 @@ class usbtestgui:
             self.root.title('USB Test GUI')
             self.root.protocol('WM_DELETE_WINDOW', self.shut_down)
             fm = tk.Frame(self.root)
-            tk.Button(fm, text = 'LED1', command = self.dev.toggle_led1).pack(side = tk.LEFT)
-            tk.Button(fm, text = 'LED2', command = self.dev.toggle_led2).pack(side = tk.LEFT)
-            tk.Button(fm, text = 'LED3', command = self.dev.toggle_led3).pack(side = tk.LEFT)
             fm.pack(side = tk.TOP)
-            dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, showvalue = tk.FALSE, command = self.set_duty_callback)
+            #dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, showvalue = tk.FALSE, command = self.set_duty_callback)
+            dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, command = self.set_duty_callback)
             dutyslider.set(25)
             dutyslider.pack(side = tk.TOP)
-            self.sw1_status = tk.Label(self.root, text = 'SW1 is currently ?')
-            self.sw1_status.pack(side = tk.TOP)
-            self.sw2_status = tk.Label(self.root, text = 'SW2 is currently ?')
-            self.sw2_status.pack(side = tk.TOP)
-            self.sw3_status = tk.Label(self.root, text = 'SW3 is currently ?')
-            self.sw3_status.pack(side = tk.TOP)
+
             self.a0_status = tk.Label(self.root, text = 'A0 is currently ????')
             self.a0_status.pack(side = tk.TOP)
+
+            self.a1_status = tk.Label(self.root, text = 'A1 is currently ????')
+            self.a1_status.pack(side = tk.TOP)
+
             self.update_status()
 
     def set_duty_callback(self, value):
         self.dev.set_duty(float(value))
 
     def update_status(self):
-        self.sw1_status.configure(text = 'SW1 is currently {!s}'.format(self.dev.read_sw1()))
-        self.sw2_status.configure(text = 'SW2 is currently {!s}'.format(self.dev.read_sw2()))
-        self.sw3_status.configure(text = 'SW3 is currently {!s}'.format(self.dev.read_sw3()))
         self.a0_status.configure(text = 'A0 is currently {:04d}'.format(self.dev.read_a0()))
+        self.a1_status.configure(text = 'A1 is currently {:04d}'.format(self.dev.read_a1()))
         self.update_job = self.root.after(50, self.update_status)
 
     def shut_down(self):
