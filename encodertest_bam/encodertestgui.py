@@ -50,10 +50,16 @@ class encodertestgui:
             self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
             self.enc_status.pack(side = tk.TOP)
 
-            self.enc2_status = tk.Label(self.root, text = 'ret[0] ?????')
+            self.enc2_status = tk.Label(self.root, text = 't1 ?????')
             self.enc2_status.pack(side = tk.TOP)
-            self.enc3_status = tk.Label(self.root, text = 'ret[1] is ?????')
+            self.enc3_status = tk.Label(self.root, text = 't2 is ?????')
             self.enc3_status.pack(side = tk.TOP)
+            self.enc4_status = tk.Label(self.root, text = 't3 is ?????')
+            self.enc4_status.pack(side = tk.TOP)
+            self.enc5_status = tk.Label(self.root, text = 't4 is ?????')
+            self.enc5_status.pack(side = tk.TOP)
+            self.enc6_status = tk.Label(self.root, text = 't5 is ?????')
+            self.enc6_status.pack(side = tk.TOP)
 
             self.update_status()
 
@@ -63,8 +69,12 @@ class encodertestgui:
         self.sw3_status.configure(text = 'SW3 is currently {!s}'.format(self.dev.read_sw3()))
         self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle()))
 
-        self.enc2_status.configure(text = 'ret0 {:1}'.format(self.dev.get_angle2()))
-        self.enc3_status.configure(text = 'ret1 {:1}'.format(self.dev.get_angle3()))
+        self.enc2_status.configure(text = 't1 {:8}'.format(self.dev.get_angle2()))
+        self.enc3_status.configure(text = 't2 {:8}'.format(self.dev.get_angle3()))
+        self.enc4_status.configure(text = 't3 {:8}'.format(self.dev.get_angle4()))
+        self.enc5_status.configure(text = 't4 {:8}'.format(self.dev.get_angle5()))
+        self.enc6_status.configure(text = 't5 {:8}'.format(self.dev.get_angle4() - self.dev.get_angle5() ))
+        # two subtracted are evaluating the same thing, so this one tells what kind of a time difference there is
 
         self.update_job = self.root.after(50, self.update_status)
 

@@ -95,7 +95,7 @@ class encodertest:
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request."
         else:
-            return (int(ret[0]) )
+            return (int(ret[0]) + 256 * int(ret[1])) &  0xc000
 
     def get_angle3(self):
         try:
@@ -103,4 +103,20 @@ class encodertest:
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request."
         else:
-            return (int(ret[1]) )
+            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
+
+    def get_angle4(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
+        except usb.core.USBError:
+            print "Could not send ENC_READ_REG vendor request."
+        else:
+            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
+
+    def get_angle5(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
+        except usb.core.USBError:
+            print "Could not send ENC_READ_REG vendor request."
+        else:
+            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
