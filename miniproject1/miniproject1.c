@@ -71,7 +71,7 @@ void vendor_requests(void) {
 
     switch (USB_setup.bRequest) {
         case READ_A0:
-            temp.w = read_analog(A0_AN);
+            temp.i = read_analog(A0_AN);
             BD[EP0IN].address[0] = temp.b[0];
             BD[EP0IN].address[1] = temp.b[1];
             BD[EP0IN].bytecount = 2;
@@ -122,13 +122,13 @@ int16_t main(void) {
     uint8_t *RPOR, *RPINR;
     init_elecanisms();
 
-    D7_DIR = OUT;                                   // pin number here
-    D7 = 0;                                         // pin number
+    D8_DIR = OUT;                                   // pin number here
+    D8 = 0;                                         // pin number
     RPOR = (uint8_t *)&RPOR0;
     RPINR = (uint8_t *)&RPINR0;
 
     __builtin_write_OSCCONL(OSCCON & 0xBF);
-    RPOR[D7_RP] = OC1_RP;                          // pin number
+    RPOR[D8_RP] = OC1_RP;                          // pin number
     __builtin_write_OSCCONL(OSCCON | 0x40);
 
     OC1CON1 = 0x1C06;
