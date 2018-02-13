@@ -15,10 +15,10 @@ list = Builder(action = 'xc16-objdump -S -D $SOURCE > $TARGET',
                src_suffix = 'elf')
 env.Append(BUILDERS = {'List' : list})
 
-env.Program('miniproject1', ['miniproject1.c',
+env.Program('miniproject2', ['miniproject2.c',
                         'descriptors.c',
                         '../lib/usb.c',
                         '../lib/elecanisms.c'])
 
-env.Hex('miniproject1')
-env.List('miniproject1')
+env.Hex('miniproject2')
+env.List('miniproject2')

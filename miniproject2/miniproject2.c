@@ -35,6 +35,15 @@
 #define GET_DUTY_MAX        104
 #define ENC_READ_REG        105
 
+#define TOGGLE_LED1         110
+#define TOGGLE_LED2         111
+#define TOGGLE_LED3         112
+#define READ_SW1            113
+#define READ_SW2            114
+#define READ_SW3            115
+
+#define READ_MODE            120
+
 #define ENC_MISO            D1
 #define ENC_MOSI            D0
 #define ENC_SCK             D2
@@ -89,13 +98,46 @@ WORD enc_readReg(WORD address) {
     return result;
 }
 
-
-
 void vendor_requests(void) {
     WORD temp;
     uint16_t i;
 
     switch (USB_setup.bRequest) {
+        case READ_MODE:
+            BD[EP0IN].address[0] = SW1 ? 1 : 0;
+            BD[EP0IN].bytecount = 1;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+        case TOGGLE_LED1:
+            LED1 = !LED1;
+            BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+        case TOGGLE_LED2:
+            LED2 = !LED2;
+            BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+        case TOGGLE_LED3:
+            LED3 = !LED3;
+            BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+        case READ_SW1:
+            BD[EP0IN].address[0] = SW1 ? 1 : 0;
+            BD[EP0IN].bytecount = 1;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+        case READ_SW2:
+            BD[EP0IN].address[0] = SW2 ? 1 : 0;
+            BD[EP0IN].bytecount = 1;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+        case READ_SW3:
+            BD[EP0IN].address[0] = SW3 ? 1 : 0;
+            BD[EP0IN].bytecount = 1;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
         case READ_A0:
             temp.i = read_analog(A0_AN);
             BD[EP0IN].address[0] = temp.b[0];

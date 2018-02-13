@@ -26,13 +26,12 @@
 
 import Tkinter as tk
 import time
-import miniproject1
-import csv
+import miniproject2
 
-class miniproject1gui:
+class miniproject2gui:
 
     def __init__(self):
-        self.dev = miniproject1.miniproject1()
+        self.dev = miniproject2.miniproject2()
         if self.dev.dev >= 0:
             self.update_job = None
             self.root = tk.Tk()
@@ -43,17 +42,27 @@ class miniproject1gui:
             #dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, showvalue = tk.FALSE, command = self.set_duty_callback)
             dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, command = self.set_duty_callback)
             dutyslider.set(25)
+
+            tk.Button(fm, text = 'LED1', command = self.dev.toggle_led1).pack(side = tk.LEFT)
+            tk.Button(fm, text = 'LED2', command = self.dev.toggle_led2).pack(side = tk.LEFT)
+            tk.Button(fm, text = 'LED3', command = self.dev.toggle_led3).pack(side = tk.LEFT)
             dutyslider.pack(side = tk.TOP)
+
+            tk.Button(fm, text = 'Change Mode', command = self.dev.toggle_led3).pack(side = tk.LEFT)
+            self.mode_status = tk.Label(self.root, text = 'Mode is ?')
+            self.mode_status.pack(side = tk.TOP)
+
+            self.sw1_status = tk.Label(self.root, text = 'SW1 is currently ?')
+            self.sw1_status.pack(side = tk.TOP)
+            self.sw2_status = tk.Label(self.root, text = 'SW2 is currently ?')
+            self.sw2_status.pack(side = tk.TOP)
+            self.sw3_status = tk.Label(self.root, text = 'SW3 is currently ?')
+            self.sw3_status.pack(side = tk.TOP)
 
             self.a0_status = tk.Label(self.root, text = 'A0 is currently ????')
             self.a0_status.pack(side = tk.TOP)
             self.a1_status = tk.Label(self.root, text = 'A1 is currently ????')
             self.a1_status.pack(side = tk.TOP)
-
-            self.t0_status = tk.Label(self.root, text = 'T0 is ????')
-            self.t0_status.pack(side = tk.TOP)
-            self.t1_status = tk.Label(self.root, text = 'T1 is ????')
-            self.t1_status.pack(side = tk.TOP)
 
             self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
             self.enc_status.pack(side = tk.TOP)
@@ -64,25 +73,19 @@ class miniproject1gui:
         self.dev.set_duty(float(value))
 
     def update_status(self):
+
+        self.sw1_status.configure(text = 'SW1 is currently {!s}'.format(self.dev.read_sw1()))
+        self.sw2_status.configure(text = 'SW2 is currently {!s}'.format(self.dev.read_sw2()))
+        self.sw3_status.configure(text = 'SW3 is currently {!s}'.format(self.dev.read_sw3()))
+
+        self.mode_status.configure(text = 'Mode is {!s}'.format(self.dev.read_mode()))
+
         self.a0_status.configure(text = 'A0 is currently {:}'.format(self.dev.read_a0() ))
         self.a1_status.configure(text = 'A1 is currently {:}'.format(self.dev.read_a1() ))
-        self.t0_status.configure(text = 'T0 is currently {:}'.format(self.dev.read_a0() - 500 ))
-        self.t1_status.configure(text = 'T1 is currently {:}'.format(self.dev.read_a1() - 500 ))
 
         self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle() * 360 / 16380 ))
-        #self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle()  ))
-
-
-
-        # print time.time()
-        # print (self.dev.get_angle() * 360 / 16380 )
 
         self.update_job = self.root.after(50, self.update_status)
-
-        # from paige:
-        # with open(r'document.csv', 'a') as f:
-        #      writer = csv.writer(f)
-        #    writer.writerow(angleAndTime)
 
     def shut_down(self):
         self.root.after_cancel(self.update_job)
@@ -90,5 +93,5 @@ class miniproject1gui:
         self.dev.close()
 
 if __name__=='__main__':
-    gui = miniproject1gui()
+    gui = miniproject2gui()
     gui.root.mainloop()

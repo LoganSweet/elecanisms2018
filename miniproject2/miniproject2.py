@@ -25,7 +25,7 @@
 # */
 
 import usb.core
-class miniproject1:
+class miniproject2:
 
     def __init__(self):
         self.READ_A0 = 100
@@ -34,6 +34,13 @@ class miniproject1:
         self.GET_DUTY_VAL = 103
         self.GET_DUTY_MAX = 104
         self.ENC_READ_REG = 105
+
+        self.TOGGLE_LED1 = 110
+        self.TOGGLE_LED2 = 111
+        self.TOGGLE_LED3 = 112
+        self.READ_SW1 = 113
+        self.READ_SW2 = 114
+        self.READ_SW3 = 115
 
 # AS5048A Register Map for reading from angle sensor
         self.ENC_NOP = 0x0000                       #0
@@ -51,9 +58,59 @@ class miniproject1:
             raise ValueError('no USB device found matching idVendor = 0x6666 and idProduct = 0x0003')
         self.dev.set_configuration()
 
-
     def close(self):
         self.dev = None
+
+    def toggle_led1(self):
+        try:
+            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED1)
+        except usb.core.USBError:
+            print "Could not send TOGGLE_LED1 vendor request."
+
+    def toggle_led2(self):
+        try:
+            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED2)
+        except usb.core.USBError:
+            print "Could not send TOGGLE_LED2 vendor request."
+
+    def toggle_led3(self):
+        try:
+            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED3)
+        except usb.core.USBError:
+            print "Could not send TOGGLE_LED3 vendor request."
+
+
+    def read_mode(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.READ_MODE, 0, 0, 1)
+        except usb.core.USBError:
+            print "Could not send READ_SW1 vendor request."
+        else:
+            return int(ret[0])
+
+    def read_sw1(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW1, 0, 0, 1)
+        except usb.core.USBError:
+            print "Could not send READ_SW1 vendor request."
+        else:
+            return int(ret[0])
+
+    def read_sw2(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW2, 0, 0, 1)
+        except usb.core.USBError:
+            print "Could not send READ_SW2 vendor request."
+        else:
+            return int(ret[0])
+
+    def read_sw3(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW3, 0, 0, 1)
+        except usb.core.USBError:
+            print "Could not send READ_SW3 vendor request."
+        else:
+            return int(ret[0])
 
     def read_a0(self):
         try:
