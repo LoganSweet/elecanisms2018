@@ -25,7 +25,7 @@
 # */
 
 import usb.core
-class miniproject2:
+class usbvendorrequest:
 
     def __init__(self):
         self.READ_A0 = 100
@@ -35,12 +35,16 @@ class miniproject2:
         self.GET_DUTY_MAX = 104
         self.ENC_READ_REG = 105
 
-        self.TOGGLE_LED1 = 110
-        self.TOGGLE_LED2 = 111
-        self.TOGGLE_LED3 = 112
-        self.READ_SW1 = 113
-        self.READ_SW2 = 114
-        self.READ_SW3 = 115
+        self.TOGGLE_M1 = 110
+        self.TOGGLE_M2 = 113
+        self.TOGGLE_M3 = 112
+        # self.TOGGLE_M4 = 113
+        self.READ_M1 = 114
+        self.READ_M2 = 115
+        self.READ_M3 = 116
+        # self.READ_M4 = 117
+
+        # self.READ_MODE = 120
 
 # AS5048A Register Map for reading from angle sensor
         self.ENC_NOP = 0x0000                       #0
@@ -61,118 +65,132 @@ class miniproject2:
     def close(self):
         self.dev = None
 
-    def toggle_led1(self):
+    def toggle_M1(self):
         try:
-            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED1)
+            self.dev.ctrl_transfer(0x40, self.TOGGLE_M1)
         except usb.core.USBError:
-            print "Could not send TOGGLE_LED1 vendor request."
+            print "Could not send TOGGLE_M1 vendor request."
 
-    def toggle_led2(self):
+    def toggle_M2(self):
         try:
-            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED2)
+            self.dev.ctrl_transfer(0x40, self.TOGGLE_M2)
         except usb.core.USBError:
-            print "Could not send TOGGLE_LED2 vendor request."
+            print "Could not send TOGGLE_M2 vendor request."
 
-    def toggle_led3(self):
+    def toggle_M3(self):
         try:
-            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED3)
+            self.dev.ctrl_transfer(0x40, self.TOGGLE_M3)
         except usb.core.USBError:
-            print "Could not send TOGGLE_LED3 vendor request."
+            print "Could not send TOGGLE_M3 vendor request."
+
+    # def toggle_M4(self):
+    #     try:
+    #         self.dev.ctrl_transfer(0x40, self.TOGGLE_M3)
+    #     except usb.core.USBError:
+    #         print "Could not send TOGGLE_M4 vendor request."
 
 
-    def read_mode(self):
+    # def read_mode(self):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.READ_MODE, 0, 0, 1)
+    #     except usb.core.USBError:
+    #         print "Could not send READ_SW1 vendor request."
+    #     else:
+    #         return int(ret[0])
+
+    def read_M1(self):
         try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_MODE, 0, 0, 1)
+            ret = self.dev.ctrl_transfer(0xC0, self.READ_M1, 0, 0, 1)
         except usb.core.USBError:
-            print "Could not send READ_SW1 vendor request."
+            print "Could not send READ_M1 vendor request."
         else:
             return int(ret[0])
 
-    def read_sw1(self):
+    def read_M2(self):
         try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW1, 0, 0, 1)
+            ret = self.dev.ctrl_transfer(0xC0, self.READ_M2, 0, 0, 1)
         except usb.core.USBError:
-            print "Could not send READ_SW1 vendor request."
+            print "Could not send READ_M2 vendor request."
         else:
             return int(ret[0])
 
-    def read_sw2(self):
+    def read_M3(self):
         try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW2, 0, 0, 1)
+            ret = self.dev.ctrl_transfer(0xC0, self.READ_M3, 0, 0, 1)
         except usb.core.USBError:
-            print "Could not send READ_SW2 vendor request."
+            print "Could not send READ_M3 vendor request."
         else:
             return int(ret[0])
 
-    def read_sw3(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW3, 0, 0, 1)
-        except usb.core.USBError:
-            print "Could not send READ_SW3 vendor request."
-        else:
-            return int(ret[0])
+    # def read_M4(self):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.READ_M4, 0, 0, 1)
+    #     except usb.core.USBError:
+    #         print "Could not send READ_M4 vendor request."
+    #     else:
+    #         return int(ret[0])
 
-    def read_a0(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_A0, 0, 0, 2)
-        except usb.core.USBError:
-            print "Could not send READ_A0 vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def read_a1(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_A1, 0, 0, 2)
-        except usb.core.USBError:
-            print "Could not send READ_A1 vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def set_duty_val(self, val):
-        try:
-            self.dev.ctrl_transfer(0x40, self.SET_DUTY_VAL, val)            #0x40 does something on microcontroller
-        except usb.core.USBError:
-            print "Could not send SET_DUTY_VAL vendor request."
-
-    def get_duty_val(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_VAL, 0, 0, 2)  #0xc0 returns something to python
-        except usb.core.USBError:
-            print "Could not send GET_DUTY_VAL vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def get_duty_max(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_MAX, 0, 0, 2)
-        except usb.core.USBError:
-            print "Could not send GET_DUTY_MAX vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def set_duty(self, duty_cycle):
-        val = int(round(duty_cycle * self.get_duty_max() / 100.))
-        self.set_duty_val(val)
-
-    def get_duty(self):
-        return 100. * self.get_duty_val() / self.get_duty_max()
+    # def read_a0(self):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.READ_A0, 0, 0, 2)
+    #     except usb.core.USBError:
+    #         print "Could not send READ_A0 vendor request."
+    #     else:
+    #         return int(ret[0]) + 256 * int(ret[1])
+    #
+    # def read_a1(self):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.READ_A1, 0, 0, 2)
+    #     except usb.core.USBError:
+    #         print "Could not send READ_A1 vendor request."
+    #     else:
+    #         return int(ret[0]) + 256 * int(ret[1])
+    #
+    # def set_duty_val(self, val):
+    #     try:
+    #         self.dev.ctrl_transfer(0x40, self.SET_DUTY_VAL, val)            #0x40 does something on microcontroller
+    #     except usb.core.USBError:
+    #         print "Could not send SET_DUTY_VAL vendor request."
+    #
+    # def get_duty_val(self):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_VAL, 0, 0, 2)  #0xc0 returns something to python
+    #     except usb.core.USBError:
+    #         print "Could not send GET_DUTY_VAL vendor request."
+    #     else:
+    #         return int(ret[0]) + 256 * int(ret[1])
+    #
+    # def get_duty_max(self):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_MAX, 0, 0, 2)
+    #     except usb.core.USBError:
+    #         print "Could not send GET_DUTY_MAX vendor request."
+    #     else:
+    #         return int(ret[0]) + 256 * int(ret[1])
+    #
+    # def set_duty(self, duty_cycle):
+    #     val = int(round(duty_cycle * self.get_duty_max() / 100.))
+    #     self.set_duty_val(val)
+    #
+    # def get_duty(self):
+    #     return 100. * self.get_duty_val() / self.get_duty_max()
 
 ############################################################
 ############################################################
 ############################################################
 
-    def enc_readReg(self, address):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, address, 0, 2)
-        except usb.core.USBError:
-            print "Could not send ENC_READ_REG vendor request for enc_readReg."
-        else:
-            return ret
-
-    def get_angle(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
-        except usb.core.USBError:
-            print "Could not send ENC_READ_REG vendor request for get_angle."
-        else:
-            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
+    # def enc_readReg(self, address):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, address, 0, 2)
+    #     except usb.core.USBError:
+    #         print "Could not send ENC_READ_REG vendor request for enc_readReg."
+    #     else:
+    #         return ret
+    #
+    # def get_angle(self):
+    #     try:
+    #         ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
+    #     except usb.core.USBError:
+    #         print "Could not send ENC_READ_REG vendor request for get_angle."
+    #     else:
+    #         return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF

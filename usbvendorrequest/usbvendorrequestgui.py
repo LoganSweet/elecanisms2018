@@ -26,46 +26,42 @@
 
 import Tkinter as tk
 import time
-import miniproject2
+import usbvendorrequest
 
-class miniproject2gui:
+class usbvendorrequestgui:
 
     def __init__(self):
-        self.dev = miniproject2.miniproject2()
+        self.dev = usbvendorrequest.usbvendorrequest()
         if self.dev.dev >= 0:
             self.update_job = None
             self.root = tk.Tk()
-            self.root.title('Miniproject1 GUI')
+            self.root.title('Logans usb vendor request GUI')
             self.root.protocol('WM_DELETE_WINDOW', self.shut_down)
+
             fm = tk.Frame(self.root)
             fm.pack(side = tk.TOP)
             #dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, showvalue = tk.FALSE, command = self.set_duty_callback)
+
             dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, command = self.set_duty_callback)
             dutyslider.set(25)
-
-            tk.Button(fm, text = 'LED1', command = self.dev.toggle_led1).pack(side = tk.LEFT)
-            tk.Button(fm, text = 'LED2', command = self.dev.toggle_led2).pack(side = tk.LEFT)
-            tk.Button(fm, text = 'LED3', command = self.dev.toggle_led3).pack(side = tk.LEFT)
             dutyslider.pack(side = tk.TOP)
 
-            tk.Button(fm, text = 'Change Mode', command = self.dev.toggle_led3).pack(side = tk.LEFT)
-            self.mode_status = tk.Label(self.root, text = 'Mode is ?')
-            self.mode_status.pack(side = tk.TOP)
+            tk.Button(fm, text = 'LED1', command = self.dev.toggle_led1).pack(side = tk.LEFT)
+
+            # tk.Button(fm, text = 'Change Mode', command = self.dev.toggle_led3).pack(side = tk.LEFT)
+
 
             self.sw1_status = tk.Label(self.root, text = 'SW1 is currently ?')
             self.sw1_status.pack(side = tk.TOP)
-            self.sw2_status = tk.Label(self.root, text = 'SW2 is currently ?')
-            self.sw2_status.pack(side = tk.TOP)
-            self.sw3_status = tk.Label(self.root, text = 'SW3 is currently ?')
-            self.sw3_status.pack(side = tk.TOP)
 
             self.a0_status = tk.Label(self.root, text = 'A0 is currently ????')
             self.a0_status.pack(side = tk.TOP)
-            self.a1_status = tk.Label(self.root, text = 'A1 is currently ????')
-            self.a1_status.pack(side = tk.TOP)
 
             self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
             self.enc_status.pack(side = tk.TOP)
+
+            # self.mode_status = tk.Label(self.root, text = 'Mode is ?')
+            # self.mode_status.pack(side = tk.TOP)
 
             self.update_status()
 
@@ -75,13 +71,8 @@ class miniproject2gui:
     def update_status(self):
 
         self.sw1_status.configure(text = 'SW1 is currently {!s}'.format(self.dev.read_sw1()))
-        self.sw2_status.configure(text = 'SW2 is currently {!s}'.format(self.dev.read_sw2()))
-        self.sw3_status.configure(text = 'SW3 is currently {!s}'.format(self.dev.read_sw3()))
-
-        self.mode_status.configure(text = 'Mode is {!s}'.format(self.dev.read_mode()))
 
         self.a0_status.configure(text = 'A0 is currently {:}'.format(self.dev.read_a0() ))
-        self.a1_status.configure(text = 'A1 is currently {:}'.format(self.dev.read_a1() ))
 
         self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle() * 360 / 16380 ))
 
@@ -93,5 +84,5 @@ class miniproject2gui:
         self.dev.close()
 
 if __name__=='__main__':
-    gui = miniproject2gui()
+    gui = usbvendorrequestgui()
     gui.root.mainloop()

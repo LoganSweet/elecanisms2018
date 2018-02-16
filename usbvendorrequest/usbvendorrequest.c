@@ -28,21 +28,21 @@
 #include "usb.h"
 #include <stdio.h>
 
-#define READ_A0             100
-#define READ_A1             101
-#define SET_DUTY_VAL        102
-#define GET_DUTY_VAL        103
-#define GET_DUTY_MAX        104
-#define ENC_READ_REG        105
+// #define READ_A0             100
+// #define READ_A1             101
+// #define SET_DUTY_VAL        102
+// #define GET_DUTY_VAL        103
+// #define GET_DUTY_MAX        104
+// #define ENC_READ_REG        105
 
-#define TOGGLE_LED1         110
-#define TOGGLE_LED2         111
-#define TOGGLE_LED3         112
-#define READ_SW1            113
-#define READ_SW2            114
-#define READ_SW3            115
-
-#define READ_MODE            120
+#define TOGGLE_M1         110
+#define TOGGLE_M2         113
+#define TOGGLE_M3         112
+// #define TOGGLE_M4         113
+#define READ_M1            114
+#define READ_M2            115
+#define READ_M3            116
+// #define READ_M4            117
 
 #define ENC_MISO            D1
 #define ENC_MOSI            D0
@@ -103,81 +103,109 @@ void vendor_requests(void) {
     uint16_t i;
 
     switch (USB_setup.bRequest) {
-        case READ_MODE:
-            BD[EP0IN].address[0] = SW1 ? 1 : 0;
-            BD[EP0IN].bytecount = 1;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case TOGGLE_LED1:
-            LED1 = !LED1;
+        // case READ_MODE:
+        //     BD[EP0IN].address[0] = SW1 ? 1 : 0;
+        //     BD[EP0IN].bytecount = 1;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        case TOGGLE_M1:
+            // LED2 = 0;
+            // LED1 = 1;
+            // LED3 = 0;
+            LED1 = 1;
+            LED2 = 0;
+            LED3 = 0;
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case TOGGLE_LED2:
-            LED2 = !LED2;
+        case TOGGLE_M2:
+            // LED2 = 1;
+            // LED1 = 0;
+            // LED3 = 0;
+            LED2 = 1;
+            LED1 = 1;
+            LED3 = 1;
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case TOGGLE_LED3:
-            LED3 = !LED3;
+        case TOGGLE_M3:
+            // LED2 = 0;
+            // LED1 = 0;
+            // LED3 = 1;
+            LED1 = 0;
+            LED2 = 0;
+            LED3 = 1;
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case READ_SW1:
-            BD[EP0IN].address[0] = SW1 ? 1 : 0;
+        // case TOGGLE_M4:
+        //     LED1 = 1;
+        //     LED2 = 1;
+        //     LED3 = 1;
+        //     D0 = 1;
+        //     BD[EP0IN].bytecount = 0;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        case READ_M1:
+            BD[EP0IN].address[0] = LED1 ? 1 : 0;
             BD[EP0IN].bytecount = 1;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case READ_SW2:
-            BD[EP0IN].address[0] = SW2 ? 1 : 0;
+        case READ_M2:
+            BD[EP0IN].address[0] = LED2 ? 1 : 0;
             BD[EP0IN].bytecount = 1;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case READ_SW3:
-            BD[EP0IN].address[0] = SW3 ? 1 : 0;
+        case READ_M3:
+            BD[EP0IN].address[0] = LED3 ? 1 : 0;
             BD[EP0IN].bytecount = 1;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case READ_A0:
-            temp.i = read_analog(A0_AN);
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case READ_A1:
-            temp.w = read_analog(A1_AN);
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case SET_DUTY_VAL:
-            OC1R = USB_setup.wValue.w;
-            BD[EP0IN].bytecount = 0;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case GET_DUTY_VAL:
-            temp.w = OC1R;
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case GET_DUTY_MAX:
-            temp.w = OC1RS;
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case ENC_READ_REG:
-            temp = enc_readReg(USB_setup.wValue);
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
+        // case READ_M4:
+        //     BD[EP0IN].address[0] = (LED3 & LED2 & LED1) ? 1 : 0;
+        //     BD[EP0IN].bytecount = 1;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        // case READ_A0:
+        //     temp.i = read_analog(A0_AN);
+        //     BD[EP0IN].address[0] = temp.b[0];
+        //     BD[EP0IN].address[1] = temp.b[1];
+        //     BD[EP0IN].bytecount = 2;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        // case READ_A1:
+        //     temp.w = read_analog(A1_AN);
+        //     BD[EP0IN].address[0] = temp.b[0];
+        //     BD[EP0IN].address[1] = temp.b[1];
+        //     BD[EP0IN].bytecount = 2;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        // case SET_DUTY_VAL:
+        //     OC1R = USB_setup.wValue.w;
+        //     BD[EP0IN].bytecount = 0;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        // case GET_DUTY_VAL:
+        //     temp.w = OC1R;
+        //     BD[EP0IN].address[0] = temp.b[0];
+        //     BD[EP0IN].address[1] = temp.b[1];
+        //     BD[EP0IN].bytecount = 2;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        // case GET_DUTY_MAX:
+        //     temp.w = OC1RS;
+        //     BD[EP0IN].address[0] = temp.b[0];
+        //     BD[EP0IN].address[1] = temp.b[1];
+        //     BD[EP0IN].bytecount = 2;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
+        // case ENC_READ_REG:
+        //     temp = enc_readReg(USB_setup.wValue);
+        //     BD[EP0IN].address[0] = temp.b[0];
+        //     BD[EP0IN].address[1] = temp.b[1];
+        //     BD[EP0IN].bytecount = 2;
+        //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+        //     break;
         default:
             USB_error_flags |= REQUEST_ERROR;
     }
@@ -189,22 +217,22 @@ void vendor_requests(void) {
 int16_t main(void) {
     uint8_t *RPOR, *RPINR;
     init_elecanisms();
-
-    D8_DIR = OUT;                                   // pin number here
-    D8 = 0;                                         // pin number
-    RPOR = (uint8_t *)&RPOR0;
-    RPINR = (uint8_t *)&RPINR0;
-
-    __builtin_write_OSCCONL(OSCCON & 0xBF);
-    RPOR[D8_RP] = OC1_RP;                          // pin number
-    __builtin_write_OSCCONL(OSCCON | 0x40);
-
-    OC1CON1 = 0x1C06;
-    OC1CON2 = 0x001F;
-
-    OC1RS = (uint16_t)(FCY / 1e3 - 1.);
-    OC1R = OC1RS >> 2;
-    OC1TMR = 0;
+//
+//     D8_DIR = OUT;                                   // pin number here
+//     D8 = 0;                                         // pin number
+//     RPOR = (uint8_t *)&RPOR0;
+//     RPINR = (uint8_t *)&RPINR0;
+//
+//     __builtin_write_OSCCONL(OSCCON & 0xBF);
+//     RPOR[D8_RP] = OC1_RP;                          // pin number
+//     __builtin_write_OSCCONL(OSCCON | 0x40);
+//
+//     OC1CON1 = 0x1C06;
+//     OC1CON2 = 0x001F;
+//
+//     OC1RS = (uint16_t)(FCY / 1e3 - 1.);
+//     OC1R = OC1RS >> 2;
+//     OC1TMR = 0;
 
 ///////////////////////////////////////////////////////
 //////////////// from encoder test ////////////////////
