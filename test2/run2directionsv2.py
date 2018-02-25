@@ -1,0 +1,71 @@
+# /*
+# ** Copyright (c) 2018, Bradley A. Minch
+# ** All rights reserved.
+# **
+# ** Redistribution and use in source and binary forms, with or without
+# ** modification, are permitted provided that the following conditions are met:
+# **
+# **     1. Redistributions of source code must retain the above copyright
+# **        notice, this list of conditions and the following disclaimer.
+# **     2. Redistributions in binary form must reproduce the above copyright
+# **        notice, this list of conditions and the following disclaimer in the
+# **        documentation and/or other materials provided with the distribution.
+# **
+# ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# ** AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# ** IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ** ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# ** LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# ** CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# ** SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# ** INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# ** CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ** ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# ** POSSIBILITY OF SUCH DAMAGE.
+# */
+
+import usb.core
+class runtwo_test2:
+
+    def __init__(self):
+
+        self.SET_MODE = 100
+        self.SET_DUTY_VAL = 102
+
+# AS5048A Register Map for reading from angle sensor
+        self.ENC_NOP = 0x0000                       #0
+        self.ENC_CLEAR_ERROR_FLAG = 0x0001          #1
+        self.ENC_PROGRAMMING_CTRL = 0x0003          #3
+        self.ENC_OTP_ZERO_POS_HI = 0x0016           #22
+        self.ENC_OTP_ZERO_POS_LO = 0x0017           #23
+        self.ENC_DIAG_AND_AUTO_GAIN_CTRL = 0x3FFD   #16381
+        self.ENC_MAGNITUDE = 0x3FFE                 #16382
+        self.ENC_ANGLE_AFTER_ZERO_POS_ADDER = 0x3FFF#16383
+
+        self.dev = usb.core.find(idVendor = 0x6666, idProduct = 0x0003) # looks for something in usb port
+
+        if self.dev is None:            # self/dev is your pic
+            raise ValueError('no USB device found matching idVendor = 0x6666 and idProduct = 0x0003')
+        self.dev.set_configuration()
+
+    def close(self):
+        self.dev = None
+
+    def set_mode(self, val):
+        # try:
+        self.dev.ctrl_transfer(0x40, self.SET_MODE, val)
+        # except usb.core.USBError:
+        #     print "Could not send SET_mode val vendor request."
+
+    def make_number(self):
+        val = 0
+        self.set_duty_val(val)
+
+    def set_duty_val(self, val):
+        try:
+            self.dev.ctrl_transfer(0x40, self.SET_DUTY_VAL, val)            #0x40 does something on microcontroller
+        except usb.core.USBError:
+            print "Could not send SET_DUTY_VAL vendor request."
+
+x = runtwo_test2()
+x.set_duty_val(2)

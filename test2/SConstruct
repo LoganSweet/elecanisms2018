@@ -15,10 +15,10 @@ list = Builder(action = 'xc16-objdump -S -D $SOURCE > $TARGET',
                src_suffix = 'elf')
 env.Append(BUILDERS = {'List' : list})
 
-env.Program('usbtest', ['usbtest.c',
+env.Program('run2directionsv2', ['run2directionsv2.c',
                         'descriptors.c',
                         '../lib/usb.c',
                         '../lib/elecanisms.c'])
 
-env.Hex('usbtest')
-env.List('usbtest')
+env.Hex('run2directionsv2')
+env.List('run2directionsv2')
