@@ -108,7 +108,7 @@ void vendor_requests(void) {
         //     BD[EP0IN].bytecount = 1;
         //     BD[EP0IN].status = UOWN | DTS | DTSEN;
         //     break;
-        case TOGGLE_M1:
+        case TOGGLE_M2:
             // LED2 = 0;
             // LED1 = 1;
             // LED3 = 0;
@@ -118,13 +118,13 @@ void vendor_requests(void) {
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case TOGGLE_M2:
-            // LED2 = 1;
-            // LED1 = 0;
-            // LED3 = 0;
+        case TOGGLE_M1:
             LED2 = 1;
-            LED1 = 1;
-            LED3 = 1;
+            LED1 = 0;
+            LED3 = 0;
+            // LED1 = 0;
+            // LED2 = 1;
+            // LED3 = 0;
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
@@ -146,12 +146,12 @@ void vendor_requests(void) {
         //     BD[EP0IN].bytecount = 0;
         //     BD[EP0IN].status = UOWN | DTS | DTSEN;
         //     break;
-        case READ_M1:
+        case READ_M2:
             BD[EP0IN].address[0] = LED1 ? 1 : 0;
             BD[EP0IN].bytecount = 1;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case READ_M2:
+        case READ_M1:
             BD[EP0IN].address[0] = LED2 ? 1 : 0;
             BD[EP0IN].bytecount = 1;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
