@@ -31,6 +31,7 @@ class runtwo:
 
         self.SET_MODE = 100
         self.SET_DUTY_VAL = 102
+        self.ENC_READ_REG = 103
 
 # AS5048A Register Map for reading from angle sensor
         self.ENC_NOP = 0x0000                       #0
@@ -57,5 +58,20 @@ class runtwo:
         except usb.core.USBError:
             print "Could not send SET_MODE val vendor request."
 
-# x = runtwo()
-# x.set_mode(2)
+############################################################
+
+    def enc_readReg(self, address):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, address, 0, 2)
+        except usb.core.USBError:
+            print "Could not send ENC_READ_REG vendor request for enc_readReg."
+        else:
+            return ret
+
+    def get_angle(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
+        except usb.core.USBError:
+            print "Could not send ENC_READ_REG vendor request for get_angle."
+        else:
+            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF

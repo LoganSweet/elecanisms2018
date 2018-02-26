@@ -40,41 +40,39 @@ class run2directionsgui:
             fm = tk.Frame(self.root)
             fm.pack(side = tk.TOP)
 
-            # dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, showvalue = tk.FALSE, command = self.set_duty_callback)
-            # dutyslider.set(25)
+            b0 = tk.Button(fm, text = 'Mode 0: All Off', command = self.set_mode_callback_m0)
+            b0.pack(side = tk.TOP)
 
-            b1 = tk.Button(fm, text = 'Mode 0: All Off', command = self.set_mode_callback_m0)
+            b1 = tk.Button(fm, text = 'Mode 1: Left', command = self.set_mode_callback_m1)
             b1.pack(side = tk.TOP)
 
-            b2 = tk.Button(fm, text = 'Mode 1: Left', command = self.set_mode_callback_m1)
+            b2 = tk.Button(fm, text = 'Mode 2: Right', command = self.set_mode_callback_m2)
             b2.pack(side = tk.TOP)
 
-            b3 = tk.Button(fm, text = 'Mode 2: Right', command = self.set_mode_callback_m2)
+            b3 = tk.Button(fm, text = 'Mode 3: Maintain Position', command = self.set_mode_callback_m3)
             b3.pack(side = tk.TOP)
 
-            # tk.Button(fm, text = 'Mode 0: All Off', command = run2directions.runtwo().set_mode(0)).pack(side = tk.LEFT)
-            # tk.Button(fm, text = 'Mode 1: Left', command = run2directions.runtwo().set_mode(1)).pack(side = tk.LEFT)
-            # tk.Button(fm, text = 'Mode 2: Right', command = run2directions.runtwo().set_mode(2)).pack(side = tk.LEFT)
+            self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
+            self.enc_status.pack(side = tk.TOP)
 
             self.update_status()
 
-    # def set_duty_callback(self, value):
-        # self.dev.set_duty(float(value))
-
     def set_mode_callback_m0(self):
-        print "at callback 0"
         self.dev.set_mode(0)
 
     def set_mode_callback_m1(self):
-        print "at callback 1 "
         self.dev.set_mode(1)
 
     def set_mode_callback_m2(self):
-        print "at callback 2"
         self.dev.set_mode(2)
 
+    def set_mode_callback_m3(self):
+        self.dev.set_mode(3)
+
     def update_status(self):
-        # self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle() * 360 / 16380 ))
+
+        self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() * 360 / 16380 ))
+        # self.enc_status.configure(text = 'Angle is {:}'.format(self.dev.get_angle() ))
 
         self.update_job = self.root.after(50, self.update_status)
 

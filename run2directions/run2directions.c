@@ -30,6 +30,7 @@
 
 #define SET_MODE        100
 #define SET_DUTY_VAL    102
+#define ENC_READ_REG    103
 
 #define ENC_MISO            D1
 #define ENC_MOSI            D0
@@ -93,17 +94,22 @@ void all_off(void){
     LED3 = 0;
 }
 
-void go_oneway(void){
+void go_left(void){
     all_off();
     LED1 = 1;
     OC1R = 3999;               // turn this (OC1R) to zero to turn off the motor
 }
 
-void go_otherway(void){
+void go_right(void){
     all_off();
     LED3 = 1;
     OC2R = 3999;               // turn this (OC1R) to zero to turn off the motor
 }
+
+void maintain_position(void){
+    all_off();
+    }
+
 
 void vendor_requests(void) {
     WORD temp;
@@ -114,10 +120,18 @@ void vendor_requests(void) {
         case SET_MODE:
             j = USB_setup.wValue.w;
             if(j == 0) {all_off(); }
-            if(j == 1) { go_oneway(); }
-            if(j == 2) { go_otherway(); }
+            if(j == 1) {go_left(); }
+            if(j == 2) {go_right(); }
+            if(j == 3) {maintain_position(); }
 
             BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+        case ENC_READ_REG:
+            temp = enc_readReg(USB_setup.wValue);
+            BD[EP0IN].address[0] = temp.b[0];
+            BD[EP0IN].address[1] = temp.b[1];
+            BD[EP0IN].bytecount = 2;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
 
