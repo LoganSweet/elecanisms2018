@@ -53,19 +53,19 @@ class runtwo:
     def close(self):
         self.dev = None
 
-    def set_mode(self, val):
-        try:
-            self.dev.ctrl_transfer(0x40, self.SET_MODE, val)
-        except usb.core.USBError:
-            print "Could not send SET_MODE val vendor request xxxx."
-
     def get_angle(self):
         try:
             ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request for get_angle."
         else:
-            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
+            return int((((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF ) >> 6) * 0.70588)
+
+    def set_mode(self, val):
+        try:
+            self.dev.ctrl_transfer(0x40, self.SET_MODE, val)
+        except usb.core.USBError:
+            print "Could not send SET_MODE val vendor request xxxx."
 
     def set_smooth_val(self, val):
         try:
@@ -74,8 +74,7 @@ class runtwo:
             print "Could not send set_smooth_val vendor request."
 
     def set_smooth(self):
-        val = int(self.get_angle())
-        # val = self.get_angle()
+        val = self.get_angle()
         self.set_smooth_val(val)
 
     # def get_smooth_angle(self, val):

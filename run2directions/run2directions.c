@@ -84,38 +84,20 @@ WORD enc_readReg(WORD address) {
     return result;
 }
 
-int max_val = 7999;
 
-void all_off(void){
-    OC1R = 0;
-    OC2R = 0;
-}
 
-void go_left(void){
-    all_off();
-    OC1R = 1999;     }          // turn this (OC1R) to zero to turn off the motor
+// void goto_zero(void){
+//     all_off(); }
 
-void go_right(void){
-    all_off();
-    OC2R = 1999;    }             // turn this (OC2R) to zero to turn off the motor
-
-void go_left_nostop(void){ OC1R = 1999;}
-void go_right_nostop(void){ OC2R = 1999;}
-
-void goto_zero(void){
-    all_off();
-}
-
-void read_anglevalue(void){
-    all_off();
-    // LED1 = 1;
+// void read_anglevalue(void){
+//     all_off();
     // uint16_t j;
     // WORD temp;
     //
     // if (USB_setup.bRequest = 104) {
     //     j = USB_setup.wValue.w;
-    //     // if(j < 180) {LED1 = 1; LED3 = 0; }
-    //     // if(j > 180) {LED1 = 0; LED3 = 1; }
+    //     // if(j < 180) { }
+    //     // if(j > 180) {}
     //     BD[EP0IN].bytecount = 0;
     //     BD[EP0IN].status = UOWN | DTS | DTSEN; }
     //
@@ -126,19 +108,16 @@ void read_anglevalue(void){
     //     BD[EP0IN].bytecount = 2;
     //     BD[EP0IN].status = UOWN | DTS | DTSEN;    // toegther the ORs are 11001000      // send packet as DATA1, set UOWN bit
     // }
+// }
 
-}
-
-void maintain_position(void){
-    all_off();
-    LED1 = 1;
+// void maintain_position(void){
+//     all_off();
     // BD[EP0IN].bytecount = 0;
     // BD[EP0IN].status = UOWN | DTS | DTSEN;
     //
     // if (read_angle() > 180) {
     //     BD[EP0IN].bytecount = 0;
     //     BD[EP0IN].status = UOWN | DTS | DTSEN;
-    //     // LED1 = 1;
     //     // int c = 0;
     //     // if(c == 0){
     //     //     all_off();
@@ -148,18 +127,17 @@ void maintain_position(void){
     // if (read_angle() < 180 && read_angle() > 0) {
     //     BD[EP0IN].bytecount = 0;
     //     BD[EP0IN].status = UOWN | DTS | DTSEN;
-    //     LED3 = 1;
     //     int c = 0;
     //     if(c == 0){
     //         all_off();
     //         c = 1; }
     //     if(c == 1){ go_right_nostop(); }
     // }
-}
+// }
 
-int read_angle(void){
-    all_off();
-    return 0;
+// int read_angle(void){
+//     all_off();
+//     return 0;
     // uint16_t j;
     // if (USB_setup.bRequest = 104) {
     //     j = USB_setup.wValue.w;
@@ -167,26 +145,150 @@ int read_angle(void){
     //     BD[EP0IN].status = UOWN | DTS | DTSEN;
     //     return j;
     // }
+// }
+//
+// void validate_angle(int a){
+//     uint16_t b = get_smooth_function();
+// }
+
+// int get_smooth_function(void){
+//     WORD temp;
+//     uint16_t a;
+//     switch (USB_setup.bRequest) {
+//         case SET_MODE:
+//             BD[EP0IN].bytecount = 0;
+//             BD[EP0IN].status = UOWN | DTS | DTSEN;
+
+//             break;
+//         case ENC_READ_REG: //103
+
+//             temp = enc_readReg(USB_setup.wValue);
+//             BD[EP0IN].address[0] = temp.b[0];
+//             BD[EP0IN].address[1] = temp.b[1];
+//             BD[EP0IN].bytecount = 2;
+//             BD[EP0IN].status = UOWN | DTS | DTSEN;
+//             break;
+//         case GET_SMOOTH: //104
+//             a = USB_setup.wValue.w;
+//             BD[EP0IN].bytecount = 0;
+//             BD[EP0IN].status = UOWN | DTS | DTSEN;
+//             break;
+//         default:
+//             USB_error_flags |= REQUEST_ERROR;
+//         }
+//     }
+
+
+    // if (USB_setup.bRequest == 104) {
+    //     uint16_t n;
+    //     // uint16_t n = USB_setup.wValue.w;
+    //     n = USB_setup.wValue.w;
+    //     BD[EP0IN].bytecount = 0;
+    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+    //     return n; }
+
+// void constant_angle_top(int start_angle){
+//     if(start_angle > 180){
+//      }
+// }
+
+
+
+
+
+
+
+int max_val = 7999;
+int i1 = 0;
+int i2 = 0;
+int chkang;
+
+void all_off(void){
+    OC1R = 0;
+    OC2R = 0; }
+
+void go_left(void){
+    all_off();
+    OC1R = 1999;  }          // turn this (OC1R) to zero to turn off the motor
+
+void go_right(void){
+    all_off();
+    OC2R = 1999; }             // turn this (OC2R) to zero to turn off the motor
+
+void go_left_nostop(void){ OC1R = 1999;}
+void go_right_nostop(void){ OC2R = 1999;}
+
+int check_angle(angle){
+    if (angle < 80)  { chkang = 1; }
+    if (angle > 100) { chkang = 2; }
+
+    return chkang;
 }
+
+int return_angle(angle){
+    int a = angle;
+    return a;
+}
+
+void move_to_zero(){
+
+    if ( i1 == i2 ) {
+        all_off();
+        if (return_angle() < 80) {i1 = 1; }
+        if (return_angle() > 100) {i2 = 1; }
+    }
+
+    if(i1 == 1){        // if you were just going right
+        if (return_angle() > 100) {
+            go_right_nostop();
+            move_to_zero();
+        }
+        if (return_angle() < 80) {
+            i1 = 0; i2 = 1;
+            go_left();
+            move_to_zero();
+        }
+    }
+
+    if(i2 == 1){        // if you were just going left
+        if(return_angle() < 80) {
+            go_left_nostop();
+            move_to_zero();
+        }
+        if (return_angle() > 100) {
+            i1 = 1; i2 = 0;
+            go_right();
+            move_to_zero();
+        }
+    }
+
+    if(return_angle() > 80 && return_angle() < 110){
+        LED1 = 1; LED2 = 1; LED3 = 1;
+        all_off();
+    }
+
+}
+
 
 
 void vendor_requests(void) {
     WORD temp;
-    uint16_t j;
+    uint16_t j, angle;
 
     switch (USB_setup.bRequest) {
 
-        case SET_MODE:
+        case SET_MODE:  // 100
             j = USB_setup.wValue.w;
             if(j == 0) {all_off(); }
             if(j == 1) {go_left(); }
             if(j == 2) {go_right(); }
-            if(j == 3) {maintain_position(); }
+            if(j == 3) {move_to_zero(); }
+            // if(j == 3) {move_to_zero(angle); }
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
 
-        case ENC_READ_REG:
+        case ENC_READ_REG:  // 103
             temp = enc_readReg(USB_setup.wValue);
             BD[EP0IN].address[0] = temp.b[0];
             BD[EP0IN].address[1] = temp.b[1];
@@ -194,11 +296,10 @@ void vendor_requests(void) {
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
 
-        case GET_SMOOTH:
-            all_off();
+        case GET_SMOOTH:  // 104
+            angle = USB_setup.wValue.w;
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
-
             break;
 
         default:
@@ -255,20 +356,19 @@ int16_t main(void) {
     SPI2CON2 = 0;
     SPI2STAT = 0x8000;
 
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-
     USB_setup_vendor_callback = vendor_requests;
     init_usb();
 
     while (USB_USWSTAT != CONFIG_STATE) {
-#ifndef USB_INTERRUPT
-        usb_service();
-#endif
+            #ifndef USB_INTERRUPT
+                usb_service();
+            #endif
     }
+
     while (1) {
-#ifndef USB_INTERRUPT
-        usb_service();
-#endif
+        #ifndef USB_INTERRUPT
+            usb_service();
+        #endif
     }
+
 }
