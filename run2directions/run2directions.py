@@ -32,6 +32,7 @@ class runtwo:
         self.SET_MODE = 100
         self.SET_DUTY_VAL = 102
         self.ENC_READ_REG = 103
+        self.GET_SMOOTH = 104
 
 # AS5048A Register Map for reading from angle sensor
         self.ENC_NOP = 0x0000                       #0
@@ -56,17 +57,7 @@ class runtwo:
         try:
             self.dev.ctrl_transfer(0x40, self.SET_MODE, val)
         except usb.core.USBError:
-            print "Could not send SET_MODE val vendor request."
-
-############################################################
-
-    def enc_readReg(self, address):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, address, 0, 2)
-        except usb.core.USBError:
-            print "Could not send ENC_READ_REG vendor request for enc_readReg."
-        else:
-            return ret
+            print "Could not send SET_MODE val vendor request xxxx."
 
     def get_angle(self):
         try:
@@ -74,4 +65,23 @@ class runtwo:
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request for get_angle."
         else:
-            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
+            # global recentangle
+            # recentangle = ((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF) * 360 / 16380
+            return ((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF) * 360 / 16380
+
+    def get_smooth_angle(self, val):
+        try:
+            self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+        except usb.core.USBError:
+            print "Could not send the thing you just made."
+
+    # def get_smooth_angle(self, val):
+    #     try:
+    #         print "getting smooth"
+    #         print val
+    #         ret = self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+    #         print "got through smooth wothout errors"
+    #     except usb.core.USBError:
+    #         print "smooth error place"
+    #         print val
+    #         print "you done goofed in your thing Logan"

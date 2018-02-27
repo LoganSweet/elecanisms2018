@@ -42,13 +42,10 @@ class run2directionsgui:
 
             b0 = tk.Button(fm, text = 'Mode 0: All Off', command = self.set_mode_callback_m0)
             b0.pack(side = tk.TOP)
-
             b1 = tk.Button(fm, text = 'Mode 1: Left', command = self.set_mode_callback_m1)
             b1.pack(side = tk.TOP)
-
             b2 = tk.Button(fm, text = 'Mode 2: Right', command = self.set_mode_callback_m2)
             b2.pack(side = tk.TOP)
-
             b3 = tk.Button(fm, text = 'Mode 3: Maintain Position', command = self.set_mode_callback_m3)
             b3.pack(side = tk.TOP)
 
@@ -67,13 +64,19 @@ class run2directionsgui:
         self.dev.set_mode(2)
 
     def set_mode_callback_m3(self):
-        self.dev.set_mode(3)
+        # a = self.dev.get_angle()
+        # print "the value assigned to A is "
+        # print a
+        # self.dev.get_smooth_angle(a)
+        # self.dev.set_mode(3)
+        a = self.dev.get_angle()
+        print a
+        self.dev.get_smooth_angle(a)
+
 
     def update_status(self):
-
-        self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() * 360 / 16380 ))
-        # self.enc_status.configure(text = 'Angle is {:}'.format(self.dev.get_angle() ))
-
+        # self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() ))
+        self.enc_status.configure(text = 'Angle is {:}'.format(self.dev.get_angle() ))
         self.update_job = self.root.after(50, self.update_status)
 
     def shut_down(self):
