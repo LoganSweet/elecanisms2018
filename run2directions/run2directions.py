@@ -65,15 +65,25 @@ class runtwo:
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request for get_angle."
         else:
-            # global recentangle
-            # recentangle = ((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF) * 360 / 16380
-            return ((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF) * 360 / 16380
+            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
 
-    def get_smooth_angle(self, val):
+    def set_smooth_val(self, val):
         try:
             self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
         except usb.core.USBError:
-            print "Could not send the thing you just made."
+            print "Could not send set_smooth_val vendor request."
+
+    def set_smooth(self):
+        val = int(self.get_angle())
+        # val = self.get_angle()
+        self.set_smooth_val(val)
+
+    # def get_smooth_angle(self, val):
+    #     try:
+    #         # self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+    #         self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+    #     except usb.core.USBError:
+    #         print "Could not send the get_smooth_angle things from python."
 
     # def get_smooth_angle(self, val):
     #     try:

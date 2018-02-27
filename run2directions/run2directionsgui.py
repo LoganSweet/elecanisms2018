@@ -64,15 +64,10 @@ class run2directionsgui:
         self.dev.set_mode(2)
 
     def set_mode_callback_m3(self):
+        self.dev.set_mode(3)
         # a = self.dev.get_angle()
-        # print "the value assigned to A is "
-        # print a
         # self.dev.get_smooth_angle(a)
-        # self.dev.set_mode(3)
-        a = self.dev.get_angle()
-        print a
-        self.dev.get_smooth_angle(a)
-
+        self.dev.set_smooth()
 
     def update_status(self):
         # self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() ))
