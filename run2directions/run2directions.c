@@ -202,6 +202,8 @@ int max_val = 7999;
 int i1 = 0;
 int i2 = 0;
 int chkang;
+volatile uint16_t angle;
+uint8_t movetozero = 0;
 
 void all_off(void){
     OC1R = 0;
@@ -225,56 +227,20 @@ int check_angle(angle){
     return chkang;
 }
 
-int return_angle(angle){
-    int a = angle;
-    return a;
-}
-
 void move_to_zero(){
-
-    if ( i1 == i2 ) {
-        all_off();
-        if (return_angle() < 80) {i1 = 1; }
-        if (return_angle() > 100) {i2 = 1; }
-    }
-
-    if(i1 == 1){        // if you were just going right
-        if (return_angle() > 100) {
-            go_right_nostop();
-            move_to_zero();
-        }
-        if (return_angle() < 80) {
-            i1 = 0; i2 = 1;
-            go_left();
-            move_to_zero();
-        }
-    }
-
-    if(i2 == 1){        // if you were just going left
-        if(return_angle() < 80) {
-            go_left_nostop();
-            move_to_zero();
-        }
-        if (return_angle() > 100) {
-            i1 = 1; i2 = 0;
-            go_right();
-            move_to_zero();
-        }
-    }
-
-    if(return_angle() > 80 && return_angle() < 110){
-        LED1 = 1; LED2 = 1; LED3 = 1;
-        all_off();
-    }
-
+    LED1 = !LED1;
+    
 }
 
 
 
 void vendor_requests(void) {
     WORD temp;
-    uint16_t j, angle;
+    uint16_t j;// angle;
 
+    if (movetozero) {
+        move_to_zero();
+    }
     switch (USB_setup.bRequest) {
 
         case SET_MODE:  // 100
@@ -282,7 +248,7 @@ void vendor_requests(void) {
             if(j == 0) {all_off(); }
             if(j == 1) {go_left(); }
             if(j == 2) {go_right(); }
-            if(j == 3) {move_to_zero(); }
+            if(j == 3) {movetozero = 1; } else { movetozero = 0; }
             // if(j == 3) {move_to_zero(angle); }
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
