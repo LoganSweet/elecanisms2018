@@ -33,6 +33,7 @@ class mp2:
         self.SET_DUTY_VAL = 102
         self.ENC_READ_REG = 103
         self.GET_SMOOTH = 104
+        self.GET_ANGLE_DATA = 105
 
 # AS5048A Register Map for reading from angle sensor
         self.ENC_NOP = 0x0000                       #0
@@ -60,6 +61,14 @@ class mp2:
             print "Could not send ENC_READ_REG vendor request for get_angle."
         else:
             return int((((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF ) >> 6) * 0.70588)
+
+    def get_angle_full(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
+        except usb.core.USBError:
+            print "Could not send ENC_READ_REG vendor request for get_angle."
+        else:
+            return int( ( ( (int(ret[0]) + 256 * int(ret[1]) ) & 0x3FFF ) >> 6) )
 
     def set_mode(self, val):
         try:

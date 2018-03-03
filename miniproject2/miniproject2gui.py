@@ -60,6 +60,9 @@ class miniproject2gui:
             self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
             self.enc_status.pack(side = tk.TOP)
 
+            self.enc_status_bare = tk.Label(self.root, text = 'Full angle reading is ?????')
+            self.enc_status_bare.pack(side = tk.TOP)
+
             self.update_status()
 
     def set_mode_callback_m0(self):
@@ -94,6 +97,7 @@ class miniproject2gui:
     def update_status(self):
         # self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() ))
         self.enc_status.configure(text = 'Angle is {:}'.format(self.dev.get_angle() ))
+        self.enc_status_bare.configure(text = 'Full angle reading is {:}'.format(self.dev.get_angle_full() ))
         self.update_job = self.root.after(50, self.update_status)
 
         self.dev.set_smooth()  # this allows the C file to be updatee enough

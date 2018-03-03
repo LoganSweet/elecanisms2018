@@ -32,6 +32,7 @@
 #define SET_DUTY_VAL    102
 #define ENC_READ_REG    103
 #define GET_SMOOTH      104
+#define GET_ANGLE_DATA  105
 
 #define ENC_MISO            D1
 #define ENC_MOSI            D0
@@ -94,21 +95,14 @@ WORD enc_readReg(WORD address) {
 int max_val = 7999;
 int max_speed = 3999;
 
-int i1 = 0;
-int i2 = 0;
-int chkang;
-volatile uint16_t angle;
-uint8_t movetozeroflag = 0, springflag=0, damperflag=0, textureflag=0, wallflag=0;
+volatile uint16_t angle, fullangle;
+uint8_t movezeroflag = 0, springflag=0, damperflag=0, textureflag=0, wallflag=0;
 
-void motion_off(void){
-    OC1R = 0;
-    OC2R = 0; }
+void motion_off(void){ OC1R = 0; OC2R = 0; }
 
-void led_off(void){
-    LED1 = 0;
-    LED2 = 0;
-    LED3 = 0;
-}
+void led_off(void){ LED1 = 0; LED2 = 0; LED3 = 0;}
+
+void flags_off(void){ movezeroflag=0; springflag=0; damperflag=0; textureflag=0; wallflag=0; }
 
 void go_left(void){
     motion_off();
@@ -117,6 +111,9 @@ void go_left(void){
 void go_right(void){
     motion_off();
     OC2R = 1999; }             // turn this (OC2R) to zero to turn off the motor
+
+void go_left_nostop(void){ OC1R = 1999;}
+void go_right_nostop(void){ OC2R = 1999;}
 
 void proportional_left(int scale, int factor){
     motion_off();
@@ -127,15 +124,9 @@ void proportional_right(int scale, int factor){
     OC2R = (scale * factor) ;
 }
 
-void go_left_nostop(void){ OC1R = 1999;}
-void go_right_nostop(void){ OC2R = 1999;}
-
-int check_angle(angle){
-    if (angle < 80)  { chkang = 1; }
-    if (angle > 100) { chkang = 2; }
-
-    return chkang;
-}
+////////////////////////////////////////////////////////////////
+///////////////////////// mode functions ///////////////////////
+////////////////////////////////////////////////////////////////
 
 void move_to_zero(){
     if(angle < 88){
@@ -161,9 +152,21 @@ void spring_function(void){
     if (angle > 88 && angle < 92) { motion_off(); }
 }
 
+volatile int16_t this_angle = 0, prev_ang1 = 0, prev_ang2 = 0 ;
 
 void damper_function(void){
-    motion_off();
+    int16_t speed;
+    prev_ang2 = prev_ang1;
+    prev_ang1 = this_angle;
+    this_angle = fullangle;
+
+    speed = prev_ang1 - this_angle;
+    if(fullangle > 0) LED1 = 1;
+    if(fullangle == 0) LED3 = 1; 
+    // if(speed < 0) {led_off(); LED1 = 1; } // turning left is negaibe
+    // if(speed > 0) {led_off(); LED3 = 1; } // turning right is positive
+
+
 }
 
 void texture_function(void){
@@ -174,16 +177,18 @@ void wall_function(void){
     motion_off();
 }
 
-void flags_off(void){
-    movetozeroflag=0; springflag=0; damperflag=0; textureflag=0; wallflag=0;
-}
+
+
+////////////////////////////////////////////////////////////////
+//////////////////////////// Controller ////////////////////////
+////////////////////////////////////////////////////////////////
 
 
 void vendor_requests(void) {
     WORD temp;
-    uint16_t j, mode;
+    uint16_t mode;
 
-    if (movetozeroflag) {move_to_zero();}
+    if (movezeroflag) {move_to_zero();}
     if (springflag)     {spring_function();}
     if (damperflag)     {damper_function();}
     if (textureflag)    {texture_function();}
@@ -191,57 +196,29 @@ void vendor_requests(void) {
 
     switch (USB_setup.bRequest) {
 
-
-
         case SET_MODE:  // 100
             mode = USB_setup.wValue.w;
             switch (mode){
-                case 0:
-                    flags_off();
-                    motion_off();
-                break;
-                case 1:
-                    flags_off();
-                    go_left();
-                break;
-                case 2:
-                    flags_off();
-                    go_right();
-                break;
-                case 3:
-                    flags_off();
-                    movetozeroflag = 1;
-                break;
-                case 4:
-                    flags_off();
-                    springflag = 1;
-                break;
-                    flags_off();
-                case 5:
-                    damperflag = 1;
-                break;
-                case 6:
-                    flags_off();
-                    textureflag = 1;
-                break;
-                case 7:
-                    flags_off();
-                    wallflag = 1;
-                break;
+                case 0: flags_off(); motion_off();      break;
+
+                case 1: flags_off(); go_left();         break;
+
+                case 2: flags_off(); go_right();        break;
+
+                case 3: flags_off(); movezeroflag = 1;  break;
+
+                case 4: flags_off(); springflag = 1;    break;
+
+                case 5: flags_off(); damperflag = 1;    break;
+
+                case 6: flags_off(); textureflag = 1;   break;
+
+                case 7: flags_off(); wallflag = 1;      break;
             }
-            // if(j == 0) {motion_off(); }
-            // if(j == 1) {go_left(); }
-            // if(j == 2) {go_right(); }
-            // if(j == 3) {movetozeroflag = 1;} else { movetozeroflag = 0; }
-            // if(j == 4) {spring = 1;}     else {spring = 0; } // spring
-            // if(j == 5) {motion_off(); } // damper
-            // if(j == 6) {motion_off(); } // textureflag
-            // if(j == 7) {motion_off(); } // wall
-
-
 
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
+
             break;
 
         case ENC_READ_REG:  // 103
@@ -258,15 +235,20 @@ void vendor_requests(void) {
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
 
-
+        case GET_ANGLE_DATA:  // 105
+            fullangle = USB_setup.wValue.w;
+            BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
 
         default:
             USB_error_flags |= REQUEST_ERROR;
     }
 }
 
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//////////////////////////// main //////////////////////////////
+////////////////////////////////////////////////////////////////
 
 int16_t main(void) {
 
@@ -331,9 +313,17 @@ int16_t main(void) {
 
 }
 
+
+
 ////////////////////////////////////////////////////////////////
 /////////////////// old junk just in case //////////////////////
 ////////////////////////////////////////////////////////////////
+
+// int check_angle(angle){
+//     if (angle < 80)  { chkang = 1; }
+//     if (angle > 100) { chkang = 2; }
+//     return chkang;
+// }
 
 
 // void goto_zero(void){
