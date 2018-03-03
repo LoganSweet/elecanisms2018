@@ -92,23 +92,40 @@ WORD enc_readReg(WORD address) {
 
 
 int max_val = 7999;
+int max_speed = 3999;
+
 int i1 = 0;
 int i2 = 0;
 int chkang;
 volatile uint16_t angle;
-uint8_t movetozero = 0;
+uint8_t movetozeroflag = 0, springflag=0, damperflag=0, textureflag=0, wallflag=0;
 
-void all_off(void){
+void motion_off(void){
     OC1R = 0;
     OC2R = 0; }
 
+void led_off(void){
+    LED1 = 0;
+    LED2 = 0;
+    LED3 = 0;
+}
+
 void go_left(void){
-    all_off();
+    motion_off();
     OC1R = 1999;  }          // turn this (OC1R) to zero to turn off the motor
 
 void go_right(void){
-    all_off();
+    motion_off();
     OC2R = 1999; }             // turn this (OC2R) to zero to turn off the motor
+
+void proportional_left(int scale, int factor){
+    motion_off();
+    OC1R = (scale * factor) ;
+}
+void proportional_right(int scale, int factor){
+    motion_off();
+    OC2R = (scale * factor) ;
+}
 
 void go_left_nostop(void){ OC1R = 1999;}
 void go_right_nostop(void){ OC2R = 1999;}
@@ -121,32 +138,107 @@ int check_angle(angle){
 }
 
 void move_to_zero(){
-    // LED1 = !LED1;
-    if (angle > 50) {LED1 = 1; LED3 = 0;}
-    if (angle < 50) {LED1 = 0; LED3 = 1;}
-
-
+    if(angle < 88){
+        int diff_r = 90 - angle ;
+        proportional_right(50, diff_r);
+    }
+    if (angle > 92) {
+        int diff_l = angle - 90 ;
+        proportional_left(50, diff_l);
+    }
+    if (angle > 88 && angle < 92) { motion_off(); }
 }
 
+void spring_function(void){
+    if(angle < 88){
+        int diff_r = 90 - angle ;
+        proportional_right(500, diff_r);
+    }
+    if (angle > 92) {
+        int diff_l = angle - 90 ;
+        proportional_left(500, diff_l);
+    }
+    if (angle > 88 && angle < 92) { motion_off(); }
+}
+
+
+void damper_function(void){
+    motion_off();
+}
+
+void texture_function(void){
+    motion_off();
+}
+
+void wall_function(void){
+    motion_off();
+}
+
+void flags_off(void){
+    movetozeroflag=0; springflag=0; damperflag=0; textureflag=0; wallflag=0;
+}
 
 
 void vendor_requests(void) {
     WORD temp;
-    uint16_t j;// angle;
+    uint16_t j, mode;
 
-    if (movetozero) {
-        move_to_zero();
-    }
+    if (movetozeroflag) {move_to_zero();}
+    if (springflag)     {spring_function();}
+    if (damperflag)     {damper_function();}
+    if (textureflag)    {texture_function();}
+    if (wallflag)       {wall_function();}
+
     switch (USB_setup.bRequest) {
 
 
 
         case SET_MODE:  // 100
-            j = USB_setup.wValue.w;
-            if(j == 0) {all_off(); }
-            if(j == 1) {go_left(); }
-            if(j == 2) {go_right(); }
-            if(j == 3) {movetozero = 1; LED1 = !LED1; } else { movetozero = 0; }
+            mode = USB_setup.wValue.w;
+            switch (mode){
+                case 0:
+                    flags_off();
+                    motion_off();
+                break;
+                case 1:
+                    flags_off();
+                    go_left();
+                break;
+                case 2:
+                    flags_off();
+                    go_right();
+                break;
+                case 3:
+                    flags_off();
+                    movetozeroflag = 1;
+                break;
+                case 4:
+                    flags_off();
+                    springflag = 1;
+                break;
+                    flags_off();
+                case 5:
+                    damperflag = 1;
+                break;
+                case 6:
+                    flags_off();
+                    textureflag = 1;
+                break;
+                case 7:
+                    flags_off();
+                    wallflag = 1;
+                break;
+            }
+            // if(j == 0) {motion_off(); }
+            // if(j == 1) {go_left(); }
+            // if(j == 2) {go_right(); }
+            // if(j == 3) {movetozeroflag = 1;} else { movetozeroflag = 0; }
+            // if(j == 4) {spring = 1;}     else {spring = 0; } // spring
+            // if(j == 5) {motion_off(); } // damper
+            // if(j == 6) {motion_off(); } // textureflag
+            // if(j == 7) {motion_off(); } // wall
+
+
 
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
@@ -245,10 +337,10 @@ int16_t main(void) {
 
 
 // void goto_zero(void){
-//     all_off(); }
+//     motion_off(); }
 
 // void read_anglevalue(void){
-//     all_off();
+//     motion_off();
     // uint16_t j;
     // WORD temp;
     //
@@ -269,7 +361,7 @@ int16_t main(void) {
 // }
 
 // void maintain_position(void){
-//     all_off();
+//     motion_off();
     // BD[EP0IN].bytecount = 0;
     // BD[EP0IN].status = UOWN | DTS | DTSEN;
     //
@@ -278,7 +370,7 @@ int16_t main(void) {
     //     BD[EP0IN].status = UOWN | DTS | DTSEN;
     //     // int c = 0;
     //     // if(c == 0){
-    //     //     all_off();
+    //     //     motion_off();
     //     //     c = 1; }
     //     // if(c == 1) {go_left_nostop(); }
     // }
@@ -287,14 +379,14 @@ int16_t main(void) {
     //     BD[EP0IN].status = UOWN | DTS | DTSEN;
     //     int c = 0;
     //     if(c == 0){
-    //         all_off();
+    //         motion_off();
     //         c = 1; }
     //     if(c == 1){ go_right_nostop(); }
     // }
 // }
 
 // int read_angle(void){
-//     all_off();
+//     motion_off();
 //     return 0;
     // uint16_t j;
     // if (USB_setup.bRequest = 104) {

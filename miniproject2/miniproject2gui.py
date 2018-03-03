@@ -46,8 +46,16 @@ class miniproject2gui:
             b1.pack(side = tk.TOP)
             b2 = tk.Button(fm, text = 'Mode 2: Right', command = self.set_mode_callback_m2)
             b2.pack(side = tk.TOP)
-            b3 = tk.Button(fm, text = 'Mode 3: Maintain Position', command = self.set_mode_callback_m3)
+            b3 = tk.Button(fm, text = 'Mode 3: Return to Zero Position', command = self.set_mode_callback_m3)
             b3.pack(side = tk.TOP)
+            b4 = tk.Button(fm, text = 'Mode 4: Spring', command = self.set_mode_callback_m4)
+            b4.pack(side = tk.TOP)
+            b5 = tk.Button(fm, text = 'Mode 5: Damper', command = self.set_mode_callback_m5)
+            b5.pack(side = tk.TOP)
+            b6 = tk.Button(fm, text = 'Mode 6: Texture', command = self.set_mode_callback_m6)
+            b6.pack(side = tk.TOP)
+            b7 = tk.Button(fm, text = 'Mode 7: Wall', command = self.set_mode_callback_m7)
+            b7.pack(side = tk.TOP)
 
             self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
             self.enc_status.pack(side = tk.TOP)
@@ -65,8 +73,22 @@ class miniproject2gui:
 
     def set_mode_callback_m3(self):
         self.dev.set_mode(3)
-        # a = self.dev.get_angle()
-        # self.dev.get_smooth_angle(a)
+        self.dev.set_smooth()
+
+    def set_mode_callback_m4(self):
+        self.dev.set_mode(4)
+        self.dev.set_smooth()
+
+    def set_mode_callback_m5(self):
+        self.dev.set_mode(5)
+        self.dev.set_smooth()
+
+    def set_mode_callback_m6(self):
+        self.dev.set_mode(6)
+        self.dev.set_smooth()
+
+    def set_mode_callback_m7(self):
+        self.dev.set_mode(7)
         self.dev.set_smooth()
 
     def update_status(self):
