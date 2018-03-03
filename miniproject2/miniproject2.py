@@ -60,15 +60,8 @@ class mp2:
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request for get_angle."
         else:
-            return int((((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF ) >> 6) * 0.70588)
-
-    def get_angle_full(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
-        except usb.core.USBError:
-            print "Could not send ENC_READ_REG vendor request for get_angle."
-        else:
-            return int( ( ( (int(ret[0]) + 256 * int(ret[1]) ) & 0x3FFF ) >> 6) )
+            # return int((((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF ) >> 6) * 0.70588)
+            return int( (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF )
 
     def set_mode(self, val):
         try:
@@ -85,6 +78,15 @@ class mp2:
     def set_smooth(self):
         val = self.get_angle()
         self.set_smooth_val(val)
+
+
+    def get_angle_full(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
+        except usb.core.USBError:
+            print "Could not send ENC_READ_REG vendor request for get_angle."
+        else:
+            return int( ( (int(ret[0]) + 256 * int(ret[1]) ) & 0x3FFF ) >> 6)
 
 
 

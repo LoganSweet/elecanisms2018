@@ -95,7 +95,7 @@ WORD enc_readReg(WORD address) {
 int max_val = 7999;
 int max_speed = 3999;
 
-volatile uint16_t angle, fullangle;
+volatile uint16_t angle255, angle;
 uint8_t movezeroflag = 0, springflag=0, damperflag=0, textureflag=0, wallflag=0;
 
 void motion_off(void){ OC1R = 0; OC2R = 0; }
@@ -129,27 +129,27 @@ void proportional_right(int scale, int factor){
 ////////////////////////////////////////////////////////////////
 
 void move_to_zero(){
-    if(angle < 88){
-        int diff_r = 90 - angle ;
+    if(angle255 < 170){
+        int diff_r = 175 - angle255 ;
         proportional_right(50, diff_r);
     }
-    if (angle > 92) {
-        int diff_l = angle - 90 ;
+    if (angle255 > 180) {
+        int diff_l = angle255 - 175 ;
         proportional_left(50, diff_l);
     }
-    if (angle > 88 && angle < 92) { motion_off(); }
+    if (angle255 > 170 && angle255 < 180) { motion_off(); }
 }
 
 void spring_function(void){
-    if(angle < 88){
-        int diff_r = 90 - angle ;
-        proportional_right(500, diff_r);
+    if(angle255 < 170){
+        int diff_r = 175 - angle255 ;
+        proportional_right(400, diff_r);
     }
-    if (angle > 92) {
-        int diff_l = angle - 90 ;
-        proportional_left(500, diff_l);
+    if (angle255 > 180) {
+        int diff_l = angle255 - 175 ;
+        proportional_left(400, diff_l);
     }
-    if (angle > 88 && angle < 92) { motion_off(); }
+    if (angle255 > 180 && angle255 < 175) { motion_off(); }
 }
 
 volatile int16_t this_angle = 0, prev_ang1 = 0, prev_ang2 = 0 ;
@@ -158,11 +158,11 @@ void damper_function(void){
     int16_t speed;
     prev_ang2 = prev_ang1;
     prev_ang1 = this_angle;
-    this_angle = fullangle;
+    this_angle = angle;
 
     speed = prev_ang1 - this_angle;
-    if(fullangle > 0) LED1 = 1;
-    if(fullangle == 0) LED3 = 1; 
+    if(angle > 0) LED1 = 1;
+    if(angle == 0) LED3 = 1;
     // if(speed < 0) {led_off(); LED1 = 1; } // turning left is negaibe
     // if(speed > 0) {led_off(); LED3 = 1; } // turning right is positive
 
@@ -231,15 +231,11 @@ void vendor_requests(void) {
 
         case GET_SMOOTH:  // 104
             angle = USB_setup.wValue.w;
+            angle255 = angle >> 6;
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
 
-        case GET_ANGLE_DATA:  // 105
-            fullangle = USB_setup.wValue.w;
-            BD[EP0IN].bytecount = 0;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
 
         default:
             USB_error_flags |= REQUEST_ERROR;
