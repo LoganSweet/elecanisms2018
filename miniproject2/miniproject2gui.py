@@ -31,60 +31,47 @@ import miniproject2
 class miniproject2gui:
 
     def __init__(self):
-        self.dev = miniproject2.miniproject2()
+        self.dev = miniproject2.mp2()
         if self.dev.dev >= 0:
             self.update_job = None
             self.root = tk.Tk()
-            self.root.title('Miniproject1 GUI')
+            self.root.title('Miniproject 2 GUI')
             self.root.protocol('WM_DELETE_WINDOW', self.shut_down)
             fm = tk.Frame(self.root)
             fm.pack(side = tk.TOP)
-            #dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, showvalue = tk.FALSE, command = self.set_duty_callback)
-            dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, command = self.set_duty_callback)
-            dutyslider.set(25)
 
-            tk.Button(fm, text = 'LED1', command = self.dev.toggle_led1).pack(side = tk.LEFT)
-            tk.Button(fm, text = 'LED2', command = self.dev.toggle_led2).pack(side = tk.LEFT)
-            tk.Button(fm, text = 'LED3', command = self.dev.toggle_led3).pack(side = tk.LEFT)
-            dutyslider.pack(side = tk.TOP)
-
-            tk.Button(fm, text = 'Change Mode', command = self.dev.toggle_led3).pack(side = tk.LEFT)
-            self.mode_status = tk.Label(self.root, text = 'Mode is ?')
-            self.mode_status.pack(side = tk.TOP)
-
-            self.sw1_status = tk.Label(self.root, text = 'SW1 is currently ?')
-            self.sw1_status.pack(side = tk.TOP)
-            self.sw2_status = tk.Label(self.root, text = 'SW2 is currently ?')
-            self.sw2_status.pack(side = tk.TOP)
-            self.sw3_status = tk.Label(self.root, text = 'SW3 is currently ?')
-            self.sw3_status.pack(side = tk.TOP)
-
-            self.a0_status = tk.Label(self.root, text = 'A0 is currently ????')
-            self.a0_status.pack(side = tk.TOP)
-            self.a1_status = tk.Label(self.root, text = 'A1 is currently ????')
-            self.a1_status.pack(side = tk.TOP)
+            b0 = tk.Button(fm, text = 'Mode 0: All Off', command = self.set_mode_callback_m0)
+            b0.pack(side = tk.TOP)
+            b1 = tk.Button(fm, text = 'Mode 1: Left', command = self.set_mode_callback_m1)
+            b1.pack(side = tk.TOP)
+            b2 = tk.Button(fm, text = 'Mode 2: Right', command = self.set_mode_callback_m2)
+            b2.pack(side = tk.TOP)
+            b3 = tk.Button(fm, text = 'Mode 3: Maintain Position', command = self.set_mode_callback_m3)
+            b3.pack(side = tk.TOP)
 
             self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
             self.enc_status.pack(side = tk.TOP)
 
             self.update_status()
 
-    def set_duty_callback(self, value):
-        self.dev.set_duty(float(value))
+    def set_mode_callback_m0(self):
+        self.dev.set_mode(0)
+
+    def set_mode_callback_m1(self):
+        self.dev.set_mode(1)
+
+    def set_mode_callback_m2(self):
+        self.dev.set_mode(2)
+
+    def set_mode_callback_m3(self):
+        self.dev.set_mode(3)
+        # a = self.dev.get_angle()
+        # self.dev.get_smooth_angle(a)
+        self.dev.set_smooth()
 
     def update_status(self):
-
-        self.sw1_status.configure(text = 'SW1 is currently {!s}'.format(self.dev.read_sw1()))
-        self.sw2_status.configure(text = 'SW2 is currently {!s}'.format(self.dev.read_sw2()))
-        self.sw3_status.configure(text = 'SW3 is currently {!s}'.format(self.dev.read_sw3()))
-
-        self.mode_status.configure(text = 'Mode is {!s}'.format(self.dev.read_mode()))
-
-        self.a0_status.configure(text = 'A0 is currently {:}'.format(self.dev.read_a0() ))
-        self.a1_status.configure(text = 'A1 is currently {:}'.format(self.dev.read_a1() ))
-
-        self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle() * 360 / 16380 ))
-
+        # self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() ))
+        self.enc_status.configure(text = 'Angle is {:}'.format(self.dev.get_angle() ))
         self.update_job = self.root.after(50, self.update_status)
 
     def shut_down(self):

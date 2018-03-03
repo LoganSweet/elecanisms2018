@@ -25,22 +25,14 @@
 # */
 
 import usb.core
-class miniproject2:
+class mp2:
 
     def __init__(self):
-        self.READ_A0 = 100
-        self.READ_A1 = 101
-        self.SET_DUTY_VAL = 102
-        self.GET_DUTY_VAL = 103
-        self.GET_DUTY_MAX = 104
-        self.ENC_READ_REG = 105
 
-        self.TOGGLE_LED1 = 110
-        self.TOGGLE_LED2 = 111
-        self.TOGGLE_LED3 = 112
-        self.READ_SW1 = 113
-        self.READ_SW2 = 114
-        self.READ_SW3 = 115
+        self.SET_MODE = 100
+        self.SET_DUTY_VAL = 102
+        self.ENC_READ_REG = 103
+        self.GET_SMOOTH = 104
 
 # AS5048A Register Map for reading from angle sensor
         self.ENC_NOP = 0x0000                       #0
@@ -61,118 +53,44 @@ class miniproject2:
     def close(self):
         self.dev = None
 
-    def toggle_led1(self):
-        try:
-            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED1)
-        except usb.core.USBError:
-            print "Could not send TOGGLE_LED1 vendor request."
-
-    def toggle_led2(self):
-        try:
-            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED2)
-        except usb.core.USBError:
-            print "Could not send TOGGLE_LED2 vendor request."
-
-    def toggle_led3(self):
-        try:
-            self.dev.ctrl_transfer(0x40, self.TOGGLE_LED3)
-        except usb.core.USBError:
-            print "Could not send TOGGLE_LED3 vendor request."
-
-
-    def read_mode(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_MODE, 0, 0, 1)
-        except usb.core.USBError:
-            print "Could not send READ_SW1 vendor request."
-        else:
-            return int(ret[0])
-
-    def read_sw1(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW1, 0, 0, 1)
-        except usb.core.USBError:
-            print "Could not send READ_SW1 vendor request."
-        else:
-            return int(ret[0])
-
-    def read_sw2(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW2, 0, 0, 1)
-        except usb.core.USBError:
-            print "Could not send READ_SW2 vendor request."
-        else:
-            return int(ret[0])
-
-    def read_sw3(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_SW3, 0, 0, 1)
-        except usb.core.USBError:
-            print "Could not send READ_SW3 vendor request."
-        else:
-            return int(ret[0])
-
-    def read_a0(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_A0, 0, 0, 2)
-        except usb.core.USBError:
-            print "Could not send READ_A0 vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def read_a1(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.READ_A1, 0, 0, 2)
-        except usb.core.USBError:
-            print "Could not send READ_A1 vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def set_duty_val(self, val):
-        try:
-            self.dev.ctrl_transfer(0x40, self.SET_DUTY_VAL, val)            #0x40 does something on microcontroller
-        except usb.core.USBError:
-            print "Could not send SET_DUTY_VAL vendor request."
-
-    def get_duty_val(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_VAL, 0, 0, 2)  #0xc0 returns something to python
-        except usb.core.USBError:
-            print "Could not send GET_DUTY_VAL vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def get_duty_max(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_MAX, 0, 0, 2)
-        except usb.core.USBError:
-            print "Could not send GET_DUTY_MAX vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def set_duty(self, duty_cycle):
-        val = int(round(duty_cycle * self.get_duty_max() / 100.))
-        self.set_duty_val(val)
-
-    def get_duty(self):
-        return 100. * self.get_duty_val() / self.get_duty_max()
-
-############################################################
-############################################################
-############################################################
-
-    def enc_readReg(self, address):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, address, 0, 2)
-        except usb.core.USBError:
-            print "Could not send ENC_READ_REG vendor request for enc_readReg."
-        else:
-            return ret
-
     def get_angle(self):
         try:
             ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request for get_angle."
         else:
-            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
+            return int((((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF ) >> 6) * 0.70588)
+
+    def set_mode(self, val):
+        try:
+            self.dev.ctrl_transfer(0x40, self.SET_MODE, val)
+        except usb.core.USBError:
+            print "Could not send SET_MODE val vendor request xxxx."
+
+    def set_smooth_val(self, val):
+        try:
+            self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+        except usb.core.USBError:
+            print "Could not send set_smooth_val vendor request."
+
+    def set_smooth(self):
+        val = self.get_angle()
+        self.set_smooth_val(val)
+
+    # def get_smooth_angle(self, val):
+    #     try:
+    #         # self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+    #         self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+    #     except usb.core.USBError:
+    #         print "Could not send the get_smooth_angle things from python."
+
+    # def get_smooth_angle(self, val):
+    #     try:
+    #         print "getting smooth"
+    #         print val
+    #         ret = self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+    #         print "got through smooth wothout errors"
+    #     except usb.core.USBError:
+    #         print "smooth error place"
+    #         print val
+    #         print "you done goofed in your thing Logan"

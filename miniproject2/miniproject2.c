@@ -28,32 +28,19 @@
 #include "usb.h"
 #include <stdio.h>
 
-#define READ_A0             100
-#define READ_A1             101
-#define SET_DUTY_VAL        102
-#define GET_DUTY_VAL        103
-#define GET_DUTY_MAX        104
-#define ENC_READ_REG        105
-
-#define TOGGLE_LED1         110
-#define TOGGLE_LED2         111
-#define TOGGLE_LED3         112
-#define READ_SW1            113
-#define READ_SW2            114
-#define READ_SW3            115
-
-#define READ_MODE            120
+#define SET_MODE        100
+#define SET_DUTY_VAL    102
+#define ENC_READ_REG    103
+#define GET_SMOOTH      104
 
 #define ENC_MISO            D1
 #define ENC_MOSI            D0
 #define ENC_SCK             D2
 #define ENC_CSn             D3
-
 #define ENC_MISO_DIR        D1_DIR
 #define ENC_MOSI_DIR        D0_DIR
 #define ENC_SCK_DIR         D2_DIR
 #define ENC_CSn_DIR         D3_DIR
-
 #define ENC_MISO_RP         D1_RP
 #define ENC_MOSI_RP         D0_RP
 #define ENC_SCK_RP          D2_RP
@@ -63,8 +50,7 @@ uint16_t even_parity(uint16_t v) {
     v ^= v >> 4;
     v ^= v >> 2;
     v ^= v >> 1;
-    return v & 1;
-}
+    return v & 1; }
 
 WORD enc_readReg(WORD address) {
     WORD cmd, result;
@@ -98,86 +84,191 @@ WORD enc_readReg(WORD address) {
     return result;
 }
 
+
+
+// void goto_zero(void){
+//     all_off(); }
+
+// void read_anglevalue(void){
+//     all_off();
+    // uint16_t j;
+    // WORD temp;
+    //
+    // if (USB_setup.bRequest = 104) {
+    //     j = USB_setup.wValue.w;
+    //     // if(j < 180) { }
+    //     // if(j > 180) {}
+    //     BD[EP0IN].bytecount = 0;
+    //     BD[EP0IN].status = UOWN | DTS | DTSEN; }
+    //
+    // if (USB_setup.bRequest = 103) {
+    //     temp = enc_readReg(USB_setup.wValue);
+    //     BD[EP0IN].address[0] = temp.b[0];  //EP0IN set to 1 in buffer descriptor table
+    //     BD[EP0IN].address[1] = temp.b[1];
+    //     BD[EP0IN].bytecount = 2;
+    //     BD[EP0IN].status = UOWN | DTS | DTSEN;    // toegther the ORs are 11001000      // send packet as DATA1, set UOWN bit
+    // }
+// }
+
+// void maintain_position(void){
+//     all_off();
+    // BD[EP0IN].bytecount = 0;
+    // BD[EP0IN].status = UOWN | DTS | DTSEN;
+    //
+    // if (read_angle() > 180) {
+    //     BD[EP0IN].bytecount = 0;
+    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+    //     // int c = 0;
+    //     // if(c == 0){
+    //     //     all_off();
+    //     //     c = 1; }
+    //     // if(c == 1) {go_left_nostop(); }
+    // }
+    // if (read_angle() < 180 && read_angle() > 0) {
+    //     BD[EP0IN].bytecount = 0;
+    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+    //     int c = 0;
+    //     if(c == 0){
+    //         all_off();
+    //         c = 1; }
+    //     if(c == 1){ go_right_nostop(); }
+    // }
+// }
+
+// int read_angle(void){
+//     all_off();
+//     return 0;
+    // uint16_t j;
+    // if (USB_setup.bRequest = 104) {
+    //     j = USB_setup.wValue.w;
+    //     BD[EP0IN].bytecount = 0;
+    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+    //     return j;
+    // }
+// }
+//
+// void validate_angle(int a){
+//     uint16_t b = get_smooth_function();
+// }
+
+// int get_smooth_function(void){
+//     WORD temp;
+//     uint16_t a;
+//     switch (USB_setup.bRequest) {
+//         case SET_MODE:
+//             BD[EP0IN].bytecount = 0;
+//             BD[EP0IN].status = UOWN | DTS | DTSEN;
+
+//             break;
+//         case ENC_READ_REG: //103
+
+//             temp = enc_readReg(USB_setup.wValue);
+//             BD[EP0IN].address[0] = temp.b[0];
+//             BD[EP0IN].address[1] = temp.b[1];
+//             BD[EP0IN].bytecount = 2;
+//             BD[EP0IN].status = UOWN | DTS | DTSEN;
+//             break;
+//         case GET_SMOOTH: //104
+//             a = USB_setup.wValue.w;
+//             BD[EP0IN].bytecount = 0;
+//             BD[EP0IN].status = UOWN | DTS | DTSEN;
+//             break;
+//         default:
+//             USB_error_flags |= REQUEST_ERROR;
+//         }
+//     }
+
+
+    // if (USB_setup.bRequest == 104) {
+    //     uint16_t n;
+    //     // uint16_t n = USB_setup.wValue.w;
+    //     n = USB_setup.wValue.w;
+    //     BD[EP0IN].bytecount = 0;
+    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
+    //     return n; }
+
+// void constant_angle_top(int start_angle){
+//     if(start_angle > 180){
+//      }
+// }
+
+
+
+
+
+
+
+int max_val = 7999;
+int i1 = 0;
+int i2 = 0;
+int chkang;
+volatile uint16_t angle;
+uint8_t movetozero = 0;
+
+void all_off(void){
+    OC1R = 0;
+    OC2R = 0; }
+
+void go_left(void){
+    all_off();
+    OC1R = 1999;  }          // turn this (OC1R) to zero to turn off the motor
+
+void go_right(void){
+    all_off();
+    OC2R = 1999; }             // turn this (OC2R) to zero to turn off the motor
+
+void go_left_nostop(void){ OC1R = 1999;}
+void go_right_nostop(void){ OC2R = 1999;}
+
+int check_angle(angle){
+    if (angle < 80)  { chkang = 1; }
+    if (angle > 100) { chkang = 2; }
+
+    return chkang;
+}
+
+void move_to_zero(){
+    LED1 = !LED1;
+
+
+}
+
+
+
 void vendor_requests(void) {
     WORD temp;
-    uint16_t i;
+    uint16_t j;// angle;
 
+    if (movetozero) {
+        move_to_zero();
+    }
     switch (USB_setup.bRequest) {
-        case READ_MODE:
-            BD[EP0IN].address[0] = SW1 ? 1 : 0;
-            BD[EP0IN].bytecount = 1;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case TOGGLE_LED1:
-            LED1 = !LED1;
+
+        case SET_MODE:  // 100
+            j = USB_setup.wValue.w;
+            if(j == 0) {all_off(); }
+            if(j == 1) {go_left(); }
+            if(j == 2) {go_right(); }
+            if(j == 3) {movetozero = 1; } else { movetozero = 0; }
+            // if(j == 3) {move_to_zero(angle); }
             BD[EP0IN].bytecount = 0;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
-        case TOGGLE_LED2:
-            LED2 = !LED2;
-            BD[EP0IN].bytecount = 0;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case TOGGLE_LED3:
-            LED3 = !LED3;
-            BD[EP0IN].bytecount = 0;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case READ_SW1:
-            BD[EP0IN].address[0] = SW1 ? 1 : 0;
-            BD[EP0IN].bytecount = 1;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case READ_SW2:
-            BD[EP0IN].address[0] = SW2 ? 1 : 0;
-            BD[EP0IN].bytecount = 1;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case READ_SW3:
-            BD[EP0IN].address[0] = SW3 ? 1 : 0;
-            BD[EP0IN].bytecount = 1;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case READ_A0:
-            temp.i = read_analog(A0_AN);
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case READ_A1:
-            temp.w = read_analog(A1_AN);
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case SET_DUTY_VAL:
-            OC1R = USB_setup.wValue.w;
-            BD[EP0IN].bytecount = 0;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case GET_DUTY_VAL:
-            temp.w = OC1R;
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case GET_DUTY_MAX:
-            temp.w = OC1RS;
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-        case ENC_READ_REG:
+
+        case ENC_READ_REG:  // 103
             temp = enc_readReg(USB_setup.wValue);
             BD[EP0IN].address[0] = temp.b[0];
             BD[EP0IN].address[1] = temp.b[1];
             BD[EP0IN].bytecount = 2;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
+
+        case GET_SMOOTH:  // 104
+            angle = USB_setup.wValue.w;
+            BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+
         default:
             USB_error_flags |= REQUEST_ERROR;
     }
@@ -187,59 +278,64 @@ void vendor_requests(void) {
 //////////////////////////////////////////////////////////
 
 int16_t main(void) {
-    uint8_t *RPOR, *RPINR;
-    init_elecanisms();
 
-    D8_DIR = OUT;                                   // pin number here
-    D8 = 0;                                         // pin number
+    init_elecanisms();
+    uint8_t *RPOR, *RPINR;
+    uint8_t *RPORa, *RPINRa;
+
+    D7_DIR = OUT;
+    D7 = 0;
+    D8_DIR = OUT;
+    D8 = 0;
+
     RPOR = (uint8_t *)&RPOR0;
     RPINR = (uint8_t *)&RPINR0;
+    RPORa = (uint8_t *)&RPOR1;
+    RPINRa = (uint8_t *)&RPINR1;
 
     __builtin_write_OSCCONL(OSCCON & 0xBF);
-    RPOR[D8_RP] = OC1_RP;                          // pin number
+        RPOR[D8_RP] = OC2_RP;
+        RPOR[D7_RP] = OC1_RP;
     __builtin_write_OSCCONL(OSCCON | 0x40);
 
     OC1CON1 = 0x1C06;
     OC1CON2 = 0x001F;
-
     OC1RS = (uint16_t)(FCY / 1e3 - 1.);
-    OC1R = OC1RS >> 2;
     OC1TMR = 0;
 
-///////////////////////////////////////////////////////
-//////////////// from encoder test ////////////////////
-///////////////////////////////////////////////////////
+    OC2CON1 = 0x1C06;
+    OC2CON2 = 0x001F;
+    OC2RS = (uint16_t)(FCY / 1e3 - 1.);
+    OC2TMR = 0;
 
-// Configure encoder pins and connect them to SPI2
-ENC_CSn_DIR = OUT; ENC_CSn = 1;
-ENC_SCK_DIR = OUT; ENC_SCK = 0;
-ENC_MOSI_DIR = OUT; ENC_MOSI = 0;
-ENC_MISO_DIR = IN;
+    ENC_CSn_DIR = OUT; ENC_CSn = 1;
+    ENC_SCK_DIR = OUT; ENC_SCK = 0;
+    ENC_MOSI_DIR = OUT; ENC_MOSI = 0;
+    ENC_MISO_DIR = IN;
 
-__builtin_write_OSCCONL(OSCCON & 0xBF);
-RPINR[MISO2_RP] = ENC_MISO_RP;
-RPOR[ENC_MOSI_RP] = MOSI2_RP;
-RPOR[ENC_SCK_RP] = SCK2OUT_RP;
-__builtin_write_OSCCONL(OSCCON | 0x40);
+    __builtin_write_OSCCONL(OSCCON & 0xBF);
+    RPINR[MISO2_RP] = ENC_MISO_RP;
+    RPOR[ENC_MOSI_RP] = MOSI2_RP;
+    RPOR[ENC_SCK_RP] = SCK2OUT_RP;
+    __builtin_write_OSCCONL(OSCCON | 0x40);
 
-SPI2CON1 = 0x003B;              // SPI2 mode = 1, SCK freq = 8 MHz
-SPI2CON2 = 0;
-SPI2STAT = 0x8000;
-
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
+    SPI2CON1 = 0x003B;              // SPI2 mode = 1, SCK freq = 8 MHz
+    SPI2CON2 = 0;
+    SPI2STAT = 0x8000;
 
     USB_setup_vendor_callback = vendor_requests;
     init_usb();
 
     while (USB_USWSTAT != CONFIG_STATE) {
-#ifndef USB_INTERRUPT
-        usb_service();
-#endif
+            #ifndef USB_INTERRUPT
+                usb_service();
+            #endif
     }
+
     while (1) {
-#ifndef USB_INTERRUPT
-        usb_service();
-#endif
+        #ifndef USB_INTERRUPT
+            usb_service();
+        #endif
     }
+
 }
