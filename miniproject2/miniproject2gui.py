@@ -74,6 +74,8 @@ class miniproject2gui:
         self.enc_status.configure(text = 'Angle is {:}'.format(self.dev.get_angle() ))
         self.update_job = self.root.after(50, self.update_status)
 
+        self.dev.set_smooth()  # this allows the C file to be updatee enough
+
     def shut_down(self):
         self.root.after_cancel(self.update_job)
         self.root.destroy()

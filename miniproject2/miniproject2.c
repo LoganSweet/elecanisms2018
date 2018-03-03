@@ -86,6 +86,164 @@ WORD enc_readReg(WORD address) {
 
 
 
+
+
+
+
+
+int max_val = 7999;
+int i1 = 0;
+int i2 = 0;
+int chkang;
+volatile uint16_t angle;
+uint8_t movetozero = 0;
+
+void all_off(void){
+    OC1R = 0;
+    OC2R = 0; }
+
+void go_left(void){
+    all_off();
+    OC1R = 1999;  }          // turn this (OC1R) to zero to turn off the motor
+
+void go_right(void){
+    all_off();
+    OC2R = 1999; }             // turn this (OC2R) to zero to turn off the motor
+
+void go_left_nostop(void){ OC1R = 1999;}
+void go_right_nostop(void){ OC2R = 1999;}
+
+int check_angle(angle){
+    if (angle < 80)  { chkang = 1; }
+    if (angle > 100) { chkang = 2; }
+
+    return chkang;
+}
+
+void move_to_zero(){
+    // LED1 = !LED1;
+    if (angle > 50) {LED1 = 1; LED3 = 0;}
+    if (angle < 50) {LED1 = 0; LED3 = 1;}
+
+
+}
+
+
+
+void vendor_requests(void) {
+    WORD temp;
+    uint16_t j;// angle;
+
+    if (movetozero) {
+        move_to_zero();
+    }
+    switch (USB_setup.bRequest) {
+
+
+
+        case SET_MODE:  // 100
+            j = USB_setup.wValue.w;
+            if(j == 0) {all_off(); }
+            if(j == 1) {go_left(); }
+            if(j == 2) {go_right(); }
+            if(j == 3) {movetozero = 1; LED1 = !LED1; } else { movetozero = 0; }
+
+            BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+
+        case ENC_READ_REG:  // 103
+            temp = enc_readReg(USB_setup.wValue);
+            BD[EP0IN].address[0] = temp.b[0];
+            BD[EP0IN].address[1] = temp.b[1];
+            BD[EP0IN].bytecount = 2;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+
+        case GET_SMOOTH:  // 104
+            angle = USB_setup.wValue.w;
+            BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+
+
+
+        default:
+            USB_error_flags |= REQUEST_ERROR;
+    }
+}
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+int16_t main(void) {
+
+    init_elecanisms();
+    uint8_t *RPOR, *RPINR;
+    uint8_t *RPORa, *RPINRa;
+
+    D7_DIR = OUT;
+    D7 = 0;
+    D8_DIR = OUT;
+    D8 = 0;
+
+    RPOR = (uint8_t *)&RPOR0;
+    RPINR = (uint8_t *)&RPINR0;
+    RPORa = (uint8_t *)&RPOR1;
+    RPINRa = (uint8_t *)&RPINR1;
+
+    __builtin_write_OSCCONL(OSCCON & 0xBF);
+        RPOR[D8_RP] = OC2_RP;
+        RPOR[D7_RP] = OC1_RP;
+    __builtin_write_OSCCONL(OSCCON | 0x40);
+
+    OC1CON1 = 0x1C06;
+    OC1CON2 = 0x001F;
+    OC1RS = (uint16_t)(FCY / 1e3 - 1.);
+    OC1TMR = 0;
+
+    OC2CON1 = 0x1C06;
+    OC2CON2 = 0x001F;
+    OC2RS = (uint16_t)(FCY / 1e3 - 1.);
+    OC2TMR = 0;
+
+    ENC_CSn_DIR = OUT; ENC_CSn = 1;
+    ENC_SCK_DIR = OUT; ENC_SCK = 0;
+    ENC_MOSI_DIR = OUT; ENC_MOSI = 0;
+    ENC_MISO_DIR = IN;
+
+    __builtin_write_OSCCONL(OSCCON & 0xBF);
+    RPINR[MISO2_RP] = ENC_MISO_RP;
+    RPOR[ENC_MOSI_RP] = MOSI2_RP;
+    RPOR[ENC_SCK_RP] = SCK2OUT_RP;
+    __builtin_write_OSCCONL(OSCCON | 0x40);
+
+    SPI2CON1 = 0x003B;              // SPI2 mode = 1, SCK freq = 8 MHz
+    SPI2CON2 = 0;
+    SPI2STAT = 0x8000;
+
+    USB_setup_vendor_callback = vendor_requests;
+    init_usb();
+
+    while (USB_USWSTAT != CONFIG_STATE) {
+            #ifndef USB_INTERRUPT
+                usb_service();
+            #endif
+    }
+
+    while (1) {
+        #ifndef USB_INTERRUPT
+            usb_service();
+        #endif
+    }
+
+}
+
+////////////////////////////////////////////////////////////////
+/////////////////// old junk just in case //////////////////////
+////////////////////////////////////////////////////////////////
+
+
 // void goto_zero(void){
 //     all_off(); }
 
@@ -191,151 +349,3 @@ WORD enc_readReg(WORD address) {
 //     if(start_angle > 180){
 //      }
 // }
-
-
-
-
-
-
-
-int max_val = 7999;
-int i1 = 0;
-int i2 = 0;
-int chkang;
-volatile uint16_t angle;
-uint8_t movetozero = 0;
-
-void all_off(void){
-    OC1R = 0;
-    OC2R = 0; }
-
-void go_left(void){
-    all_off();
-    OC1R = 1999;  }          // turn this (OC1R) to zero to turn off the motor
-
-void go_right(void){
-    all_off();
-    OC2R = 1999; }             // turn this (OC2R) to zero to turn off the motor
-
-void go_left_nostop(void){ OC1R = 1999;}
-void go_right_nostop(void){ OC2R = 1999;}
-
-int check_angle(angle){
-    if (angle < 80)  { chkang = 1; }
-    if (angle > 100) { chkang = 2; }
-
-    return chkang;
-}
-
-void move_to_zero(){
-    LED1 = !LED1;
-
-
-}
-
-
-
-void vendor_requests(void) {
-    WORD temp;
-    uint16_t j;// angle;
-
-    if (movetozero) {
-        move_to_zero();
-    }
-    switch (USB_setup.bRequest) {
-
-        case SET_MODE:  // 100
-            j = USB_setup.wValue.w;
-            if(j == 0) {all_off(); }
-            if(j == 1) {go_left(); }
-            if(j == 2) {go_right(); }
-            if(j == 3) {movetozero = 1; } else { movetozero = 0; }
-            // if(j == 3) {move_to_zero(angle); }
-            BD[EP0IN].bytecount = 0;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-
-        case ENC_READ_REG:  // 103
-            temp = enc_readReg(USB_setup.wValue);
-            BD[EP0IN].address[0] = temp.b[0];
-            BD[EP0IN].address[1] = temp.b[1];
-            BD[EP0IN].bytecount = 2;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-
-        case GET_SMOOTH:  // 104
-            angle = USB_setup.wValue.w;
-            BD[EP0IN].bytecount = 0;
-            BD[EP0IN].status = UOWN | DTS | DTSEN;
-            break;
-
-        default:
-            USB_error_flags |= REQUEST_ERROR;
-    }
-}
-
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-
-int16_t main(void) {
-
-    init_elecanisms();
-    uint8_t *RPOR, *RPINR;
-    uint8_t *RPORa, *RPINRa;
-
-    D7_DIR = OUT;
-    D7 = 0;
-    D8_DIR = OUT;
-    D8 = 0;
-
-    RPOR = (uint8_t *)&RPOR0;
-    RPINR = (uint8_t *)&RPINR0;
-    RPORa = (uint8_t *)&RPOR1;
-    RPINRa = (uint8_t *)&RPINR1;
-
-    __builtin_write_OSCCONL(OSCCON & 0xBF);
-        RPOR[D8_RP] = OC2_RP;
-        RPOR[D7_RP] = OC1_RP;
-    __builtin_write_OSCCONL(OSCCON | 0x40);
-
-    OC1CON1 = 0x1C06;
-    OC1CON2 = 0x001F;
-    OC1RS = (uint16_t)(FCY / 1e3 - 1.);
-    OC1TMR = 0;
-
-    OC2CON1 = 0x1C06;
-    OC2CON2 = 0x001F;
-    OC2RS = (uint16_t)(FCY / 1e3 - 1.);
-    OC2TMR = 0;
-
-    ENC_CSn_DIR = OUT; ENC_CSn = 1;
-    ENC_SCK_DIR = OUT; ENC_SCK = 0;
-    ENC_MOSI_DIR = OUT; ENC_MOSI = 0;
-    ENC_MISO_DIR = IN;
-
-    __builtin_write_OSCCONL(OSCCON & 0xBF);
-    RPINR[MISO2_RP] = ENC_MISO_RP;
-    RPOR[ENC_MOSI_RP] = MOSI2_RP;
-    RPOR[ENC_SCK_RP] = SCK2OUT_RP;
-    __builtin_write_OSCCONL(OSCCON | 0x40);
-
-    SPI2CON1 = 0x003B;              // SPI2 mode = 1, SCK freq = 8 MHz
-    SPI2CON2 = 0;
-    SPI2STAT = 0x8000;
-
-    USB_setup_vendor_callback = vendor_requests;
-    init_usb();
-
-    while (USB_USWSTAT != CONFIG_STATE) {
-            #ifndef USB_INTERRUPT
-                usb_service();
-            #endif
-    }
-
-    while (1) {
-        #ifndef USB_INTERRUPT
-            usb_service();
-        #endif
-    }
-
-}

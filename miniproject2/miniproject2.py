@@ -47,7 +47,7 @@ class mp2:
         self.dev = usb.core.find(idVendor = 0x6666, idProduct = 0x0003) # looks for something in usb port
 
         if self.dev is None:            # self/dev is your pic
-            raise ValueError('no USB device found matching idVendor = 0x6666 and idProduct = 0x0003')
+            raise ValueError('USB device not found')
         self.dev.set_configuration()
 
     def close(self):
@@ -76,6 +76,9 @@ class mp2:
     def set_smooth(self):
         val = self.get_angle()
         self.set_smooth_val(val)
+
+
+
 
     # def get_smooth_angle(self, val):
     #     try:
