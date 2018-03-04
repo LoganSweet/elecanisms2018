@@ -57,11 +57,14 @@ class miniproject2gui:
             b7 = tk.Button(fm, text = 'Mode 7: Wall', command = self.set_mode_callback_m7)
             b7.pack(side = tk.TOP)
 
-            self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
+            self.enc_status = tk.Label(self.root, text = 'Full angle value is (angle) ?????')
             self.enc_status.pack(side = tk.TOP)
 
-            self.enc_status_bare = tk.Label(self.root, text = 'Full angle reading is ?????')
+            self.enc_status_bare = tk.Label(self.root, text = 'Bitshift 6 angle is (angle255) ?????')
             self.enc_status_bare.pack(side = tk.TOP)
+
+            self.fp_status = tk.Label(self.root, text = 'data you are sending is ????')
+            self.fp_status.pack(side = tk.TOP)
 
             self.update_status()
 
@@ -96,8 +99,9 @@ class miniproject2gui:
 
     def update_status(self):
         # self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() ))
-        self.enc_status.configure(text = 'Angle is {:}'.format(self.dev.get_angle() ))
-        self.enc_status_bare.configure(text = 'Full angle reading is {:}'.format(self.dev.get_angle_full() ))
+        self.enc_status.configure(text = 'Full angle value is (angle) {:}'.format(self.dev.get_angle() ))
+        self.enc_status_bare.configure(text = 'Bitshift 6 angle is (angle255) {:}'.format(self.dev.get_angle_shift() ))
+        self.fp_status.configure(text = 'data you are sending is {:}'.format(self.dev.send_to_python() ))
         self.update_job = self.root.after(50, self.update_status)
 
         self.dev.set_smooth()  # this allows the C file to be updatee enough

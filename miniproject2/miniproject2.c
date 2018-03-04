@@ -33,6 +33,7 @@
 #define ENC_READ_REG    103
 #define GET_SMOOTH      104
 #define GET_ANGLE_DATA  105
+#define SEND_TO_PYTHON  106
 
 #define ENC_MISO            D1
 #define ENC_MOSI            D0
@@ -95,7 +96,9 @@ WORD enc_readReg(WORD address) {
 int max_val = 7999;
 int max_speed = 3999;
 
-volatile uint16_t angle255, angle;
+// volatile int pythondata;
+
+volatile uint16_t angle255, angle, pythondata;
 uint8_t movezeroflag = 0, springflag=0, damperflag=0, textureflag=0, wallflag=0;
 
 void motion_off(void){ OC1R = 0; OC2R = 0; }
@@ -117,11 +120,22 @@ void go_right_nostop(void){ OC2R = 1999;}
 
 void proportional_left(int scale, int factor){
     motion_off();
-    OC1R = (scale * factor) ;
+    if(scale*factor > 5000){OC1R = 5000; }
+    else OC1R = (scale * factor) ;
 }
 void proportional_right(int scale, int factor){
     motion_off();
-    OC2R = (scale * factor) ;
+    if(scale*factor > 5000){OC1R = 5000; }
+    else OC2R = (scale * factor) ;
+}
+
+volatile int16_t this_a = 0, prev_a = 0;
+int16_t speed_function(void){      // left is positive
+    uint16_t speed;
+    prev_a = this_a;
+    this_a = angle;
+    speed = prev_a - this_a;
+    return speed;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -152,19 +166,19 @@ void spring_function(void){
     if (angle255 > 180 && angle255 < 175) { motion_off(); }
 }
 
-volatile int16_t this_angle = 0, prev_ang1 = 0, prev_ang2 = 0 ;
+
+
 
 void damper_function(void){
-    int16_t speed;
-    prev_ang2 = prev_ang1;
-    prev_ang1 = this_angle;
-    this_angle = angle;
+    int16_t speed = speed_function();
+    if (speed > 50) {
+        proportional_right(speed, 10);
+    }
 
-    speed = prev_ang1 - this_angle;
-    if(angle > 0) LED1 = 1;
-    if(angle == 0) LED3 = 1;
-    // if(speed < 0) {led_off(); LED1 = 1; } // turning left is negaibe
-    // if(speed > 0) {led_off(); LED3 = 1; } // turning right is positive
+    if (speed < -50) {
+        int16_t leftadjust = speed ^ 65535;
+        proportional_left(leftadjust, 10);
+    }
 
 
 }
@@ -188,7 +202,7 @@ void vendor_requests(void) {
     WORD temp;
     uint16_t mode;
 
-    if (movezeroflag) {move_to_zero();}
+    if (movezeroflag)   {move_to_zero();}
     if (springflag)     {spring_function();}
     if (damperflag)     {damper_function();}
     if (textureflag)    {texture_function();}
@@ -233,6 +247,14 @@ void vendor_requests(void) {
             angle = USB_setup.wValue.w;
             angle255 = angle >> 6;
             BD[EP0IN].bytecount = 0;
+            BD[EP0IN].status = UOWN | DTS | DTSEN;
+            break;
+
+        case SEND_TO_PYTHON:
+            temp.i = 0;
+            BD[EP0IN].address[0] = temp.b[0];
+            BD[EP0IN].address[1] = temp.b[1];
+            BD[EP0IN].bytecount = 2;
             BD[EP0IN].status = UOWN | DTS | DTSEN;
             break;
 
