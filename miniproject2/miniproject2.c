@@ -54,6 +54,8 @@ uint16_t even_parity(uint16_t v) {
     v ^= v >> 1;
     return v & 1; }
 
+void delay_by_nop(int num){    __asm__("nop");}   // a nop is 1 Tcy
+
 WORD enc_readReg(WORD address) {
     WORD cmd, result;
     uint16_t temp;
@@ -86,13 +88,6 @@ WORD enc_readReg(WORD address) {
     return result;
 }
 
-
-
-
-
-
-
-
 int max_val = 7999;
 int max_speed = 3999;
 
@@ -115,18 +110,18 @@ void go_right(void){
     motion_off();
     OC2R = 1999; }             // turn this (OC2R) to zero to turn off the motor
 
-void go_left_nostop(void){ OC1R = 1999;}
-void go_right_nostop(void){ OC2R = 1999;}
+// void go_left_nostop(void){ OC1R = 1999;}
+// void go_right_nostop(void){ OC2R = 1999;}
 
 void proportional_left(int scale, int factor){
     motion_off();
     if(scale*factor > 5000){OC1R = 5000; }
-    else OC1R = (scale * factor) ;
+    if(scale*factor < 5000){OC1R = scale*factor; }
 }
 void proportional_right(int scale, int factor){
     motion_off();
-    if(scale*factor > 5000){OC1R = 5000; }
-    else OC2R = (scale * factor) ;
+    if(scale*factor > 5000){OC2R = 5000; }
+    if(scale*factor < 5000){OC2R = scale*factor; }
 }
 
 volatile int16_t this_a = 0, prev_a = 0;
@@ -157,34 +152,34 @@ void move_to_zero(){
 void spring_function(void){
     if(angle255 < 170){
         int diff_r = 175 - angle255 ;
-        proportional_right(400, diff_r);
+        proportional_right(300, diff_r);
     }
     if (angle255 > 180) {
         int diff_l = angle255 - 175 ;
-        proportional_left(400, diff_l);
+        proportional_left(300, diff_l);
     }
     if (angle255 > 180 && angle255 < 175) { motion_off(); }
 }
-
-
-
 
 void damper_function(void){
     int16_t speed = speed_function();
     if (speed > 50) {
         proportional_right(speed, 10);
     }
-
     if (speed < -50) {
         int16_t leftadjust = speed ^ 65535;
-        proportional_left(leftadjust, 10);
+        proportional_left(leftadjust, 10);      //accounts for the fact that speed is negative by flipping bits
     }
 
 
 }
 
 void texture_function(void){
-    motion_off();
+    if(angle255 > 10 && angle255 < 30 ){ proportional_left(1000, 1000); }
+    if(angle255 > 110 && angle255 < 130 ){ proportional_right(1000, 1000); }
+
+    if(angle255 > 180 && angle255 < 200 ){ proportional_left(1000, 1000); }
+    if(angle255 > 230 && angle255 < 250 ){ proportional_right(1000, 1000); }
 }
 
 void wall_function(void){
@@ -330,122 +325,3 @@ int16_t main(void) {
     }
 
 }
-
-
-
-////////////////////////////////////////////////////////////////
-/////////////////// old junk just in case //////////////////////
-////////////////////////////////////////////////////////////////
-
-// int check_angle(angle){
-//     if (angle < 80)  { chkang = 1; }
-//     if (angle > 100) { chkang = 2; }
-//     return chkang;
-// }
-
-
-// void goto_zero(void){
-//     motion_off(); }
-
-// void read_anglevalue(void){
-//     motion_off();
-    // uint16_t j;
-    // WORD temp;
-    //
-    // if (USB_setup.bRequest = 104) {
-    //     j = USB_setup.wValue.w;
-    //     // if(j < 180) { }
-    //     // if(j > 180) {}
-    //     BD[EP0IN].bytecount = 0;
-    //     BD[EP0IN].status = UOWN | DTS | DTSEN; }
-    //
-    // if (USB_setup.bRequest = 103) {
-    //     temp = enc_readReg(USB_setup.wValue);
-    //     BD[EP0IN].address[0] = temp.b[0];  //EP0IN set to 1 in buffer descriptor table
-    //     BD[EP0IN].address[1] = temp.b[1];
-    //     BD[EP0IN].bytecount = 2;
-    //     BD[EP0IN].status = UOWN | DTS | DTSEN;    // toegther the ORs are 11001000      // send packet as DATA1, set UOWN bit
-    // }
-// }
-
-// void maintain_position(void){
-//     motion_off();
-    // BD[EP0IN].bytecount = 0;
-    // BD[EP0IN].status = UOWN | DTS | DTSEN;
-    //
-    // if (read_angle() > 180) {
-    //     BD[EP0IN].bytecount = 0;
-    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
-    //     // int c = 0;
-    //     // if(c == 0){
-    //     //     motion_off();
-    //     //     c = 1; }
-    //     // if(c == 1) {go_left_nostop(); }
-    // }
-    // if (read_angle() < 180 && read_angle() > 0) {
-    //     BD[EP0IN].bytecount = 0;
-    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
-    //     int c = 0;
-    //     if(c == 0){
-    //         motion_off();
-    //         c = 1; }
-    //     if(c == 1){ go_right_nostop(); }
-    // }
-// }
-
-// int read_angle(void){
-//     motion_off();
-//     return 0;
-    // uint16_t j;
-    // if (USB_setup.bRequest = 104) {
-    //     j = USB_setup.wValue.w;
-    //     BD[EP0IN].bytecount = 0;
-    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
-    //     return j;
-    // }
-// }
-//
-// void validate_angle(int a){
-//     uint16_t b = get_smooth_function();
-// }
-
-// int get_smooth_function(void){
-//     WORD temp;
-//     uint16_t a;
-//     switch (USB_setup.bRequest) {
-//         case SET_MODE:
-//             BD[EP0IN].bytecount = 0;
-//             BD[EP0IN].status = UOWN | DTS | DTSEN;
-
-//             break;
-//         case ENC_READ_REG: //103
-
-//             temp = enc_readReg(USB_setup.wValue);
-//             BD[EP0IN].address[0] = temp.b[0];
-//             BD[EP0IN].address[1] = temp.b[1];
-//             BD[EP0IN].bytecount = 2;
-//             BD[EP0IN].status = UOWN | DTS | DTSEN;
-//             break;
-//         case GET_SMOOTH: //104
-//             a = USB_setup.wValue.w;
-//             BD[EP0IN].bytecount = 0;
-//             BD[EP0IN].status = UOWN | DTS | DTSEN;
-//             break;
-//         default:
-//             USB_error_flags |= REQUEST_ERROR;
-//         }
-//     }
-
-
-    // if (USB_setup.bRequest == 104) {
-    //     uint16_t n;
-    //     // uint16_t n = USB_setup.wValue.w;
-    //     n = USB_setup.wValue.w;
-    //     BD[EP0IN].bytecount = 0;
-    //     BD[EP0IN].status = UOWN | DTS | DTSEN;
-    //     return n; }
-
-// void constant_angle_top(int start_angle){
-//     if(start_angle > 180){
-//      }
-// }
