@@ -27,17 +27,16 @@ import Tkinter as tk
 import time
 import csv
 import usb.core
-
-
-class miniproject1:
+class mp2:
 
     def __init__(self):
-        # self.READ_A0 = 100
-        # self.READ_A1 = 101
+
+        self.SET_MODE = 100
         self.SET_DUTY_VAL = 102
-        self.GET_DUTY_VAL = 103
-        self.GET_DUTY_MAX = 104
-        self.ENC_READ_REG = 105
+        self.ENC_READ_REG = 103
+        self.GET_SMOOTH = 104
+        self.GET_ANGLE_DATA = 105
+        self.SEND_TO_PYTHON = 106
 
 # AS5048A Register Map for reading from angle sensor
         self.ENC_NOP = 0x0000                       #0
@@ -52,67 +51,11 @@ class miniproject1:
         self.dev = usb.core.find(idVendor = 0x6666, idProduct = 0x0003) # looks for something in usb port
 
         if self.dev is None:            # self/dev is your pic
-            raise ValueError('no USB device found matching idVendor = 0x6666 and idProduct = 0x0003')
+            raise ValueError('USB device not found')
         self.dev.set_configuration()
-
 
     def close(self):
         self.dev = None
-
-    # def read_a0(self):
-    #     try:
-    #         ret = self.dev.ctrl_transfer(0xC0, self.READ_A0, 0, 0, 2)
-    #     except usb.core.USBError:
-    #         print "Could not send READ_A0 vendor request."
-    #     else:
-    #         return int(ret[0]) + 256 * int(ret[1])
-    #
-    # def read_a1(self):
-    #     try:
-    #         ret = self.dev.ctrl_transfer(0xC0, self.READ_A1, 0, 0, 2)
-    #     except usb.core.USBError:
-    #         print "Could not send READ_A1 vendor request."
-    #     else:
-    #         return int(ret[0]) + 256 * int(ret[1])
-
-    def set_duty_val(self, val):
-        try:
-            self.dev.ctrl_transfer(0x40, self.SET_DUTY_VAL, val)            #0x40 does something on microcontroller
-        except usb.core.USBError:
-            print "Could not send SET_DUTY_VAL vendor request."
-
-    def get_duty_val(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_VAL, 0, 0, 2)  #0xc0 returns something to python
-        except usb.core.USBError:
-            print "Could not send GET_DUTY_VAL vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def get_duty_max(self):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.GET_DUTY_MAX, 0, 0, 2)
-        except usb.core.USBError:
-            print "Could not send GET_DUTY_MAX vendor request."
-        else:
-            return int(ret[0]) + 256 * int(ret[1])
-
-    def set_duty(self, duty_cycle):
-        val = int(round(duty_cycle * self.get_duty_max() / 100.))
-        self.set_duty_val(val)
-
-    def get_duty(self):
-        return 100. * self.get_duty_val() / self.get_duty_max()
-
-############################################################
-
-    def enc_readReg(self, address):
-        try:
-            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, address, 0, 2)
-        except usb.core.USBError:
-            print "Could not send ENC_READ_REG vendor request for enc_readReg."
-        else:
-            return ret
 
     def get_angle(self):
         try:
@@ -120,40 +63,129 @@ class miniproject1:
         except usb.core.USBError:
             print "Could not send ENC_READ_REG vendor request for get_angle."
         else:
-            return (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF
+            # return int((((int(ret[0]) + 256 * int(ret[1])) & 0x3FFF ) >> 6) * 0.70588)
+            return int( (int(ret[0]) + 256 * int(ret[1])) & 0x3FFF )
+
+    def set_mode(self, val):
+        try:
+            self.dev.ctrl_transfer(0x40, self.SET_MODE, val)
+        except usb.core.USBError:
+            print "Could not send SET_MODE val vendor request xxxx."
+
+    def set_smooth_val(self, val):
+        try:
+            self.dev.ctrl_transfer(0x40, self.GET_SMOOTH, val)
+        except usb.core.USBError:
+            print "Could not send set_smooth_val vendor request."
+
+    def set_smooth(self):
+        val = self.get_angle()
+        self.set_smooth_val(val)
+
+
+    def get_angle_shift(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.ENC_READ_REG, 0x3FFF, 0, 2)
+        except usb.core.USBError:
+            print "Could not send ENC_READ_REG vendor request for get_angle."
+        else:
+            return int( ( (int(ret[0]) + 256 * int(ret[1]) ) & 0x3FFF ) >> 6)
+
+    def send_to_python(self):
+        try:
+            ret = self.dev.ctrl_transfer(0xC0, self.SEND_TO_PYTHON, 0, 0, 2)
+        except usb.core.USBError:
+            print "Could not send send_tom_python vendor request."
+        else:
+                return int(ret[0]) + 256 * int(ret[1])
 
 ##############################################################################
 ##############################################################################
 ##############################################################################
 
 
-class miniproject1gui:
+class miniproject2gui:
 
     def __init__(self):
         #self.dev = miniproject1.miniproject1()
-        self.dev = miniproject1()
+        self.dev = mp2()
         if self.dev.dev >= 0:
             self.update_job = None
             self.root = tk.Tk()
-            self.root.title('Miniproject1 GUI')
+            self.root.title('Miniproject2 CSV GUI')
             self.root.protocol('WM_DELETE_WINDOW', self.shut_down)
             fm = tk.Frame(self.root)
             fm.pack(side = tk.TOP)
-            dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, command = self.set_duty_callback)
-            dutyslider.set(0)
-            dutyslider.pack(side = tk.TOP)
+            # dutyslider = tk.Scale(self.root, from_ = 0, to = 100, orient = tk.HORIZONTAL, command = self.set_duty_callback)
+            # dutyslider.set(0)
+            # dutyslider.pack(side = tk.TOP)
+            #
+            # b0 = tk.Button(fm, text = 'Mode 0: All Off', command = self.set_mode_callback_m0)
+            # b0.pack(side = tk.TOP)
+            # b1 = tk.Button(fm, text = 'Mode 1: Left', command = self.set_mode_callback_m1)
+            # b1.pack(side = tk.TOP)
+            # b2 = tk.Button(fm, text = 'Mode 2: Right', command = self.set_mode_callback_m2)
+            # b2.pack(side = tk.TOP)
+            # b3 = tk.Button(fm, text = 'Mode 3: Return to Zero Position', command = self.set_mode_callback_m3)
+            # b3.pack(side = tk.TOP)
+            # b4 = tk.Button(fm, text = 'Mode 4: Spring', command = self.set_mode_callback_m4)
+            # b4.pack(side = tk.TOP)
+            # b5 = tk.Button(fm, text = 'Mode 5: Damper', command = self.set_mode_callback_m5)
+            # b5.pack(side = tk.TOP)
+            # b6 = tk.Button(fm, text = 'Mode 6: Texture', command = self.set_mode_callback_m6)
+            # b6.pack(side = tk.TOP)
+            # b7 = tk.Button(fm, text = 'Mode 7: Wall', command = self.set_mode_callback_m7)
+            # b7.pack(side = tk.TOP)
 
-            self.enc_status = tk.Label(self.root, text = 'Anlge is ?????')
+            self.enc_status = tk.Label(self.root, text = 'Full angle value is (angle) ?????')
             self.enc_status.pack(side = tk.TOP)
+
+            self.enc_status_bare = tk.Label(self.root, text = 'Bitshift 6 angle is (angle255) ?????')
+            self.enc_status_bare.pack(side = tk.TOP)
+
+            self.fp_status = tk.Label(self.root, text = 'data you are sending is ????')
+            self.fp_status.pack(side = tk.TOP)
 
             self.update_status()
 
-    def set_duty_callback(self, value):
-        self.dev.set_duty(float(value))
+    # def set_mode_callback_m0(self):
+    #     self.dev.set_mode(0)
+    #
+    # def set_mode_callback_m1(self):
+    #     self.dev.set_mode(1)
+    #
+    # def set_mode_callback_m2(self):
+    #     self.dev.set_mode(2)
+
+    def set_mode_callback_m3(self):
+        self.dev.set_mode(3)
+        self.dev.set_smooth()
+
+    # def set_mode_callback_m4(self):
+    #     self.dev.set_mode(4)
+    #     self.dev.set_smooth()
+    #
+    # def set_mode_callback_m5(self):
+    #     self.dev.set_mode(5)
+    #     self.dev.set_smooth()
+    #
+    # def set_mode_callback_m6(self):
+    #     self.dev.set_mode(6)
+    #     self.dev.set_smooth()
+    #
+    # def set_mode_callback_m7(self):
+    #     self.dev.set_mode(7)
+    #     self.dev.set_smooth()
 
     def update_status(self):
+        # self.enc_status.configure(text = 'Angle is {:04d}'.format(self.dev.get_angle() ))
+        self.enc_status.configure(text = 'Full angle value is (angle) {:}'.format(self.dev.get_angle() ))
+        self.enc_status_bare.configure(text = 'Bitshift 6 angle is (angle255) {:}'.format(self.dev.get_angle_shift() ))
+        self.fp_status.configure(text = 'data you are sending is {:}'.format(self.dev.send_to_python() ))
+        self.update_job = self.root.after(50, self.update_status)
 
-        #self.enc_status.configure(text = 'Angle is {:1}'.format(self.dev.get_angle() * 360 / 16380 ))
+        self.dev.set_smooth()  # this allows the C file to be updatee enough
+
 
 
         dataforcsv = [(self.dev.get_angle()* 360 / 16380), time.time()]
@@ -169,5 +201,5 @@ class miniproject1gui:
         self.dev.close()
 
 if __name__=='__main__':
-    gui = miniproject1gui()
+    gui = miniproject2gui()
     gui.root.mainloop()

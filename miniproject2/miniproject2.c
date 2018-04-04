@@ -170,19 +170,16 @@ void damper_function(void){
         int16_t leftadjust = speed ^ 65535;
         proportional_left(leftadjust, 10);      //accounts for the fact that speed is negative by flipping bits
     }
-
-
 }
 
 void texture_function(void){
     if(angle255 > 10 && angle255 < 30 ){ proportional_left(1000, 1000); }
     if(angle255 > 110 && angle255 < 130 ){ proportional_right(1000, 1000); }
-
     if(angle255 > 180 && angle255 < 200 ){ proportional_left(1000, 1000); }
     if(angle255 > 230 && angle255 < 250 ){ proportional_right(1000, 1000); }
 }
 
-void wall_function(void){
+void wall_function(void){       // decided not to implement due to time
     motion_off();
 }
 
